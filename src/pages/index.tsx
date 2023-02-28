@@ -50,6 +50,8 @@ function getLang() {
   return navigator.language;
 }
 
+const apiofshelters = "https://backend-beds-tracker-t4gf5mnipq-uw.a.run.app/shelters"
+
 var councilareasdistrict: any = {
   "1": 39172374.513557486,
   "2": 56028687.75752604,
@@ -438,6 +440,9 @@ data.rows.forEach((eachrow: any) => {
     return geojsonsdflsf;
   }
 
+
+
+
   useEffect(() => {
     console.log("map div", divRef);
 
@@ -562,7 +567,7 @@ data.rows.forEach((eachrow: any) => {
         marker: true,
       });
 
-      fetch("https://backend-beds-tracker-q73wor3ixa-uw.a.run.app/shelters")
+      fetch(apiofshelters)
         .then((response) => response.json())
         .then((data) => {
           console.log(data);
@@ -578,7 +583,7 @@ data.rows.forEach((eachrow: any) => {
 
           setInterval(() => {
             fetch(
-              "https://backend-beds-tracker-q73wor3ixa-uw.a.run.app/shelters"
+              apiofshelters
             )
               .then((response) => response.json())
               .then((data) => {
@@ -652,13 +657,7 @@ data.rows.forEach((eachrow: any) => {
             map.moveLayer("points-selected-shelter-layer");
           });
 
-          map.on("touchstart", "shelterslayer", (e: any) => {
-            popup.remove();
-            touchref.current = {
-              lngLat: e.lngLat,
-              time: Date.now(),
-            };
-          });
+         
 
           map.on("mouseleave", "shelterslayer", () => {
             //check if the url query string "stopmouseleave" is true
@@ -673,6 +672,8 @@ data.rows.forEach((eachrow: any) => {
               popup.remove();
             }
           });
+
+         
 
           map.on("mousedown", "councildistrictsselectlayer", (e: any) => {
             var sourceofcouncildistselect: any = map.getSource(
@@ -705,12 +706,11 @@ data.rows.forEach((eachrow: any) => {
             JSON.parse(e.features[0].properties.shelterarray).forEach(
               (eachShelter: any) => {
                 arrayOfSheltersText.push(`
-          <div class="rounded-sm bg-slate-700 bg-opacity-70 px-1 py-1">
+          <div class="rounded-sm bg-slate-700 bg-opacity-70 px-1 py-1 leading-tight">
           <strong>${eachShelter.projectname}</strong><br/>
           ${eachShelter.type ? `Type: ${eachShelter.type}<br/>` : ""}
          
-          ${eachShelter.total_beds} beds<br/>
-          ${eachShelter.beds_available} beds available<br/>
+          ${eachShelter.total_beds} beds | ${eachShelter.beds_available} beds available<br/>
           ${
             eachShelter.male_available
               ? `  ${eachShelter.male_available} male beds available<br/>`
@@ -786,6 +786,14 @@ data.rows.forEach((eachrow: any) => {
             // Populate the popup and set its coordinates
             // based on the feature found.
             popup.setLngLat(coordinates).setHTML(description).addTo(map);
+          });
+
+          map.on("touchstart", "shelterslayer", (e: any) => {
+            popup.remove();
+            touchref.current = {
+              lngLat: e.lngLat,
+              time: Date.now(),
+            };
           });
         });
 
@@ -1136,21 +1144,25 @@ data.rows.forEach((eachrow: any) => {
     }
   }, []);
 
-  let arrayoffilterables: any = [];
-
-  arrayoffilterables.push([
-    "match",
-    ["get", "cd"],
-    filteredcouncildistricts.map((x) => String(x)),
-    true,
-    false,
-  ]);
-
-  if (deletemaxoccu === true) {
-    arrayoffilterables.push(["match", ["get", "occper"], [1], false, true]);
-  }
+ 
 
   useEffect(() => {
+
+
+    let arrayoffilterables: any = [];
+
+    arrayoffilterables.push([
+      "match",
+      ["get", "cd"],
+      filteredcouncildistricts.map((x) => String(x)),
+      true,
+      false,
+    ]);
+  
+    if (deletemaxoccu === true) {
+      arrayoffilterables.push(["match", ["get", "occper"], [1], false, true]);
+    }
+
     if (doneloadingmap) {
       const filterinput = JSON.parse(
         JSON.stringify(["all", ...arrayoffilterables])
@@ -1626,7 +1638,7 @@ data.rows.forEach((eachrow: any) => {
             </div>
           </div>
         </div>
-
+                                <span className='leading-tight hidden'></span>
         <div ref={divRef} style={{}} className="map-container w-full h-full " />
 
         {(typeof window !== "undefined" ? window.innerWidth >= 640 : false) && (
