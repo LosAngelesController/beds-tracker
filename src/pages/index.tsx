@@ -629,7 +629,7 @@ data.rows.forEach((eachrow: any) => {
                 true,
                 false
                 ],
-                "#64748b",
+                "#0f172a",
                 [
                   "match",
                 ["get", "iswaitlist"],
@@ -1588,6 +1588,11 @@ data.rows.forEach((eachrow: any) => {
                         <p>
                           Contact: {shelterselected.properties.contact_info}
                         </p>
+                      )}
+                      {shelterselected.properties.website && (
+                        <p>
+                        Website: <a href={shelterselected.properties.website} target="_blank" rel="noreferrer">{shelterselected.properties.website}</a>
+                      </p>
                       )}
                       {shelterselected.properties.website && (
                         <p>
