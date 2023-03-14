@@ -406,6 +406,11 @@ data.rows.forEach((eachrow: any) => {
       objectbylocation[uniq].address = eachRow.address;
       objectbylocation[uniq].spa = eachRow.spa;
       objectbylocation[uniq].cd = eachRow.cd;
+      objectbylocation[uniq].website = eachRow.website;
+      objectbylocation[uniq].contact_info = eachRow.contact_info;
+      objectbylocation[uniq].isnodata = String(eachRow.isnodata);
+      objectbylocation[uniq].iswaitlist = String(eachRow.iswaitlist);
+      objectbylocation[uniq].waiting_list = eachRow.waiting_list;
 
       if (objectbylocation[uniq].shelterarray === undefined) {
         objectbylocation[uniq].shelterarray = [];
@@ -616,19 +621,38 @@ data.rows.forEach((eachrow: any) => {
                 ["*", 5, ["ln", ["get", "total_beds"]]],
               ],
               "circle-color": [
-                "interpolate",
-                ["linear"],
-                ["get", "occper"],
-                0,
-                "#76FF03",
-                0.8,
-                "#76FF03",
-                0.801,
-                "#FFFF00",
-                0.999,
-                "#FFFF00",
-                1,
-                "#ff0000",
+                "case",
+                [
+                  "match",
+                ["get", "isnodata"],
+                ["true"],
+                true,
+                false
+                ],
+                "#64748b",
+                [
+                  "match",
+                ["get", "iswaitlist"],
+                ["true"],
+                true,
+                false
+                ],
+                "#7e22ce",
+                [
+                  "interpolate",
+                  ["linear"],
+                  ["get", "occper"],
+                  0,
+                  "#76FF03",
+                  0.8,
+                  "#76FF03",
+                  0.801,
+                  "#FFFF00",
+                  0.999,
+                  "#FFFF00",
+                  1,
+                  "#ff0000",
+                ]
               ],
               "circle-stroke-opacity": 0.9,
               "circle-opacity": 0.9,
@@ -1530,6 +1554,7 @@ data.rows.forEach((eachrow: any) => {
                     <p className="font-bold">
                       {shelterselected.properties.organization_name}
                     </p>
+                    
                     <p>{shelterselected.properties.address}</p>
                     <div className="flex flex-row gap-x-2 my-1">
                       <a
@@ -1545,6 +1570,14 @@ data.rows.forEach((eachrow: any) => {
                       <p className="bg-gray-800 px-1 py-1 rounded-sm">
                         CD {shelterselected.properties.cd}
                       </p>
+                      
+                    <p>{shelterselected.properties.isnodata === true && (
+                      <span className="px-1 py-1 bg-opacity-50 bg-gray-800 border border-gray-100">No Data</span>
+                    )}</p>
+
+<p>{shelterselected.properties.iswaitlist === true && (
+                      <span className="px-1 py-1 bg-opacity-50 bg-purple-800 border-gray-100">Waitlist</span>
+                    )}</p>
                       <p className="bg-gray-800 px-1 py-1 rounded-sm">
                         SPA {shelterselected.properties.spa}
                       </p>
