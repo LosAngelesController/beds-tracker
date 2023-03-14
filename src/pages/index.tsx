@@ -1591,13 +1591,8 @@ data.rows.forEach((eachrow: any) => {
                       )}
                       {shelterselected.properties.website && (
                         <p>
-                        Website: <a href={shelterselected.properties.website} target="_blank" rel="noreferrer">{shelterselected.properties.website}</a>
-                      </p>
-                      )}
-                      {shelterselected.properties.website && (
-                        <p>
                           <a
-                            className="underline text-mejito"
+                            className="underline text-[#41ffca]"
                             href={shelterselected.properties.website}
                           >
                             {shelterselected.properties.website}
