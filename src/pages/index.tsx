@@ -1054,7 +1054,7 @@ const Home: NextPage = () => {
               data: citybounds,
             },
             paint: {
-              "line-color": "#dddddd", //#dddddd
+              "line-color": "#dddddd",  
               "line-opacity": 1,
               "line-width": 3,
             },
@@ -1482,7 +1482,7 @@ const Home: NextPage = () => {
                               width: "16px",
                               height: "16px",
                               borderRadius: "50%",
-                              backgroundColor: "green",
+                              backgroundColor: "#41ffca",
                             }}
                           ></div>
                           <label htmlFor="greenBeds" className="map-key-label">
@@ -1495,7 +1495,7 @@ const Home: NextPage = () => {
                               width: "16px",
                               height: "16px",
                               borderRadius: "50%",
-                              backgroundColor: "yellow",
+                              backgroundColor: "#ffca41",
                             }}
                           ></div>
                           <label htmlFor="yellowBeds" className="map-key-label">
