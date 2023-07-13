@@ -12,7 +12,7 @@ import { getAuth, signInWithCustomToken } from "firebase/auth";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import MapboxLanguage from "@mapbox/mapbox-gl-language";
 import Nav from "../components/nav";
-//import { CloseButton } from "@/components/CloseButton";
+
 import { MantineProvider, Checkbox } from "@mantine/core";
 import React, { useEffect, useState, useRef } from "react";
 import { initializeApp } from "firebase/app";
@@ -39,6 +39,7 @@ import { assertDeclareExportAllDeclaration } from "@babel/types";
 import { GeoJsonProperties, MultiPolygon, Polygon } from "geojson";
 import { Set } from "typescript";
 
+ 
 function isTouchScreen() {
   return window.matchMedia("(hover: none)").matches;
 }
@@ -49,8 +50,10 @@ function getLang() {
   if (navigator.languages != undefined) return navigator.languages[0];
   return navigator.language;
 }
-
-const apiofshelters = "https://backend-beds-tracker-t4gf5mnipq-uw.a.run.app/shelters"
+//https://backend-beds-tracker-t4gf5mnipq-uw.a.run.app/shelters"
+//https://api.sheety.co/aacf3e0f7311db48c4e758ecf773731f/cityOfLaShelters/master
+const apiofshelters =
+  "https://api.sheety.co/aacf3e0f7311db48c4e758ecf773731f/cityOfLaShelters/master";
 
 var councilareasdistrict: any = {
   "1": 39172374.513557486,
@@ -161,7 +164,9 @@ const Home: NextPage = () => {
   const [createdby, setcreatedby] = useState<string[]>(listofcreatedbyoptions);
   const [filteredcouncildistricts, setfilteredcouncildistricts] =
     useState<string[]>(listofcouncildists);
-
+const populType = ["Adult", "Family", "TAY", "Mens", "Veteran", "Senior", "Women", "ODR", "Women and children", "Adult Recuperative Care", "Re-entry Women", "Re-entry Men", "Re-entry Women and children", "Youth"]
+    const [filteredPopulation, setfilteredPopulation] =
+    useState<string[]>(populType);
   const shouldfilteropeninit =
     typeof window != "undefined" ? window.innerWidth >= 640 : false;
   const [showtotalarea, setshowtotalarea] = useState(false);
@@ -184,9 +189,17 @@ const Home: NextPage = () => {
   const [bedsavailableperdist, setbedsavailableperdist] = useState<any>({});
   const [filterpanelopened, setfilterpanelopened] =
     useState(shouldfilteropeninit);
-
+// const [objectByLocation, setObjectByLocation] = useState([])
+// console.log(objectByLocation)
+    const [ colors, setColors] = useState({
+      green:"",
+      yellow:"",
+      red:""
+    })
+    console.log(colors)
   const [mapboxloaded, setmapboxloaded] = useState(false);
 
+  
   const setfilteredcouncildistrictspre = (input: string[]) => {
     console.log("inputvalidator", input);
     if (input.length === 0) {
@@ -196,50 +209,69 @@ const Home: NextPage = () => {
     }
   };
 
+  const setfilteredPopulationpre = (input: string[]) => {
+    // console.log("inputvalidator", input);
+    if (input.length === 0) {
+      setfilteredPopulation(["99999"]);
+    } else {
+      setfilteredPopulation(input);
+      let arrayoffilterables1: any = [];
+    
+      if (input.length > 0) {
+        arrayoffilterables1.push([
+          "in",
+          "type",
+          ...input,
+        ]);
+      }
+
+      const filterinput1 = ["all", ...arrayoffilterables1];
+      mapref.current.setFilter("shelterslayer", filterinput1);
+
+    }
+  };
+
   const sheltersperdistcompute = (data: any) => {
+    const sheltersperdist: any = {};
 
-   
+    const locationcountperdist: any = {};
 
-    const sheltersperdist:any = {
+    data.master.forEach((eachrow: any) => {
+      if (typeof sheltersperdist[eachrow.cd] === "undefined") {
+        sheltersperdist[eachrow.cd] = new Set();
+      }
 
-    };
+      sheltersperdist[eachrow.cd].add(String(eachrow.address));
+    });
 
-    const locationcountperdist:any = {}
-
-data.rows.forEach((eachrow: any) => {
-  if (typeof sheltersperdist[eachrow.cd] === "undefined") {
-    sheltersperdist[eachrow.cd] = new Set();
-  }
-
-  sheltersperdist[eachrow.cd].add(String(eachrow.address));
-})
-
-    Object.entries(sheltersperdist).forEach(([cdnumber, shelterset]: [string, any]) => {
-      locationcountperdist[cdnumber] = shelterset.size;
-    })
+    Object.entries(sheltersperdist).forEach(
+      ([cdnumber, shelterset]: [string, any]) => {
+        locationcountperdist[cdnumber] = shelterset.size;
+      }
+    );
 
     setsheltersperdist(locationcountperdist);
 
-    const shelterbedstotal = data.rows.reduce((acc: any, obj: any) => {
+    const shelterbedstotal = data.master.reduce((acc: any, obj: any) => {
       const key = String(obj.cd);
 
       if (!acc[key]) {
-        acc[key] = obj.total_beds;
+        acc[key] = obj.totalBeds;
       }
-      acc[key] = acc[key] + obj.total_beds;
+      acc[key] = acc[key] + obj.totalBeds;
 
       return acc;
     }, {});
 
     settotalbedsperdist(shelterbedstotal);
 
-    const shelterbedsavaliable = data.rows.reduce((acc: any, obj: any) => {
+    const shelterbedsavaliable = data.master.reduce((acc: any, obj: any) => {
       const key = String(obj.cd);
 
       if (!acc[key]) {
-        acc[key] = obj.beds_available;
+        acc[key] = obj.bedsAvailable;
       }
-      acc[key] = acc[key] + obj.beds_available;
+      acc[key] = acc[key] + obj.bedsAvailable;
 
       return acc;
     }, {});
@@ -251,26 +283,26 @@ data.rows.forEach((eachrow: any) => {
 
   const [user, loading, error] = useAuthState(auth);
 
-  const datadogconfig: any = {
-    applicationId: "54ed9846-68b0-4811-a47a-7330cf1828a0",
-    clientToken: "pub428d48e3143310cf6a9dd00003773f12",
-    site: "datadoghq.com",
-    service: "beds",
-    env: "prod",
-    // Specify a version number to identify the deployed version of your application in Datadog
-    // version: '1.0.0',
+  // const datadogconfig: any = {
+  //   applicationId: "54ed9846-68b0-4811-a47a-7330cf1828a0",
+  //   clientToken: "pub428d48e3143310cf6a9dd00003773f12",
+  //   site: "datadoghq.com",
+  //   service: "beds",
+  //   env: "prod",
+  //   // Specify a version number to identify the deployed version of your application in Datadog
+  //   // version: '1.0.0',
 
-    sessionSampleRate: 100,
-    sessionReplaySampleRate: 100,
-    trackUserInteractions: true,
-    trackResources: true,
-    trackLongTasks: true,
-    defaultPrivacyLevel: "allow",
-  };
+  //   sessionSampleRate: 100,
+  //   sessionReplaySampleRate: 100,
+  //   trackUserInteractions: true,
+  //   trackResources: true,
+  //   trackLongTasks: true,
+  //   defaultPrivacyLevel: "allow",
+  // };
 
-  datadogRum.init(datadogconfig);
+  // datadogRum.init(datadogconfig);
 
-  datadogRum.startSessionReplayRecording();
+  // datadogRum.startSessionReplayRecording();
 
   const setsliderMonth = (event: Event, newValue: number | number[]) => {
     setsliderMonthAct(newValue as number[]);
@@ -349,68 +381,54 @@ data.rows.forEach((eachrow: any) => {
   const divRef: any = React.useRef<HTMLDivElement>(null);
 
   function convertDataFromBackend(data: any) {
-    /*
-        var featuresarray = data.rows.map((eachRow:any) => {
-          return {
-            "type": "Feature",
-      "properties": {
-        ...eachRow
-      },
-      "geometry": {
-        "coordinates": [
-          eachRow.lng,
-         eachRow.lat
-        ],
-        "type": "Point"
-          }
-
-        }*/
+ 
 
     var objectbylocation: any = {};
 
-    data.rows.forEach((eachRow: any) => {
+    data.master.forEach((eachRow: any) => {
       const uniq = `${eachRow.lat}` + `${eachRow.lng}`;
 
       if (objectbylocation[uniq] === undefined) {
         objectbylocation[uniq] = {};
       }
 
-      if (eachRow.total_beds === null) {
-        eachRow.total_beds = 0;
+      if (eachRow.totalBeds === null) {
+        eachRow.totalBeds = 0;
       }
 
-      if (eachRow.beds_available === null) {
-        eachRow.beds_available = 0;
+      if (eachRow.bedsAvailable === null) {
+        eachRow.bedsAvailable = 0;
       }
 
-      if (objectbylocation[uniq].total_beds === undefined) {
-        objectbylocation[uniq].total_beds = eachRow.total_beds;
+      if (objectbylocation[uniq].totalBeds === undefined) {
+        objectbylocation[uniq].totalBeds = eachRow.totalBeds;
       } else {
-        objectbylocation[uniq].total_beds += eachRow.total_beds;
+        objectbylocation[uniq].totalBeds += eachRow.totalBeds;
       }
 
-      if (objectbylocation[uniq].beds_available === undefined) {
-        objectbylocation[uniq].beds_available = eachRow.beds_available;
+      if (objectbylocation[uniq].bedsAvailable === undefined) {
+        objectbylocation[uniq].bedsAvailable = eachRow.bedsAvailable;
       } else {
-        objectbylocation[uniq].beds_available += eachRow.beds_available;
+        objectbylocation[uniq].bedsAvailable += eachRow.bedsAvailable;
       }
 
       objectbylocation[uniq].occper =
         1 -
-        objectbylocation[uniq].beds_available /
-          objectbylocation[uniq].total_beds;
+        objectbylocation[uniq].bedsAvailable /
+          objectbylocation[uniq].totalBeds;
 
-      objectbylocation[uniq].organization_name = eachRow.organization_name;
+      objectbylocation[uniq].organizationName = eachRow.organizationName;
       objectbylocation[uniq].lat = eachRow.lat;
       objectbylocation[uniq].lng = eachRow.lng;
+      objectbylocation[uniq].type = eachRow.type;
       objectbylocation[uniq].address = eachRow.address;
       objectbylocation[uniq].spa = eachRow.spa;
       objectbylocation[uniq].cd = eachRow.cd;
       objectbylocation[uniq].website = eachRow.website;
-      objectbylocation[uniq].contact_info = eachRow.contact_info;
+      objectbylocation[uniq].contactInfo = eachRow.contactInfo;
       objectbylocation[uniq].isnodata = String(eachRow.isnodata);
       objectbylocation[uniq].iswaitlist = String(eachRow.iswaitlist);
-      objectbylocation[uniq].waiting_list = eachRow.waiting_list;
+      objectbylocation[uniq].waitingList = eachRow.waitingList;
 
       if (objectbylocation[uniq].shelterarray === undefined) {
         objectbylocation[uniq].shelterarray = [];
@@ -418,7 +436,8 @@ data.rows.forEach((eachrow: any) => {
       objectbylocation[uniq].shelterarray.push(eachRow);
     });
 
-    console.log(objectbylocation);
+    // console.log(objectbylocation);
+// setObjectByLocation(objectbylocation)
 
     const featuresarray = Object.values(objectbylocation).map(
       (eachLocation: any) => {
@@ -435,7 +454,7 @@ data.rows.forEach((eachrow: any) => {
       }
     );
 
-    console.log(featuresarray);
+    // console.log(featuresarray);
 
     const geojsonsdflsf: any = {
       type: "FeatureCollection",
@@ -444,10 +463,18 @@ data.rows.forEach((eachrow: any) => {
 
     return geojsonsdflsf;
   }
+  // const greenColor = objectByLocation.map((obj: any) => {
+  //   var occper = obj.occper;
+  // debugger
+  //   if (occper >= 0 && occper <= 0.8) {
+  //       occper++;
+  //   }
+  
+  // }, {});
+  
 
 
-
-
+  // console.log(greenColor);
   useEffect(() => {
     console.log("map div", divRef);
 
@@ -455,6 +482,7 @@ data.rows.forEach((eachrow: any) => {
       console.log("app render");
     }
 
+    
     // mapboxgl.workerClass = require('worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker').default;
     //import locations from './features.geojson'
 
@@ -480,16 +508,13 @@ data.rows.forEach((eachrow: any) => {
     const debugParam = urlParams.get("debug");
 
     var mapparams: any = {
-      container: divRef.current, // container ID
-      //affordablehousing2022-dev-copy
-      // mapbox://styles/comradekyler/cld95p0s6004001qibmrpbjgd"
-      style: "mapbox://styles/mapbox/dark-v10", // style URL (THIS IS STREET VIEW)
-      //mapbox://styles/comradekyler/cl5c3eukn00al15qxpq4iugtn
-      //affordablehousing2022-dev-copy-copy
-      //  style: 'mapbox://styles/comradekyler/cl5c3eukn00al15qxpq4iugtn?optimize=true', // style URL
-      center: [-118.41, 34], // starting position [lng, lat]
-      zoom: formulaForZoom(), // starting zoom
+      container: divRef.current,  
+      style: "mapbox://styles/mapbox/dark-v10",  
+      center: [-118.41, 34],  
+      zoom: formulaForZoom(),  
     };
+
+   
 
     const map = new mapboxgl.Map(mapparams);
     mapref.current = map;
@@ -576,36 +601,58 @@ data.rows.forEach((eachrow: any) => {
       fetch(apiofshelters)
         .then((response) => response.json())
         .then((data) => {
-          console.log(data);
+         // console.log(data);
 
           sheltersperdistcompute(data);
 
           const geojsonsdflsf = convertDataFromBackend(data);
+
+          const counts = geojsonsdflsf.features.reduce(
+            (acc: any, obj: any) => {
+              const occper = obj.properties.occper;
+              if (occper === 1) {
+                acc.red++;
+              } else if (occper >= 0 && occper <= 0.8) {
+                acc.green++;
+              } else if (occper > 0.8 && occper <= 0.999) {
+                acc.yellow++;
+              }
+              return acc;
+            },
+            { green: 0, yellow: 0, red: 0 }
+          );
+          
+          setColors((prevColors) => ({
+            ...prevColors,
+            green: counts.green,
+            yellow: counts.yellow,
+            red: counts.red
+          }));
+          
+          
 
           map.addSource("sheltersv2", {
             type: "geojson",
             data: geojsonsdflsf,
           });
 
-          setInterval(() => {
-            fetch(
-              apiofshelters
-            )
-              .then((response) => response.json())
-              .then((data) => {
-                console.log(data);
+          // setInterval(() => {
+          //   fetch(apiofshelters)
+          //     .then((response) => response.json())
+          //     .then((data) => {
+          //       console.log(data);
 
-                sheltersperdistcompute(data);
+          //       sheltersperdistcompute(data);
 
-                const geojsonrefresh = convertDataFromBackend(data);
+          //       const geojsonrefresh = convertDataFromBackend(data);
 
-                const sheltersource: any = map.getSource("sheltersv2");
+          //       const sheltersource: any = map.getSource("sheltersv2");
 
-                if (sheltersource) {
-                  sheltersource.setData(geojsonrefresh);
-                }
-              });
-          }, 2000);
+          //       if (sheltersource) {
+          //         sheltersource.setData(geojsonrefresh);
+          //       }
+          //     });
+          // }, 2000);
 
           map.addLayer({
             id: "shelterslayer",
@@ -617,43 +664,32 @@ data.rows.forEach((eachrow: any) => {
                 ["linear"],
                 ["zoom"],
                 10,
-                ["*", 1.2, ["ln", ["get", "total_beds"]]],
+                ["*", 1.2, ["ln", ["get", "totalBeds"]]],
                 22,
-                ["*", 5, ["ln", ["get", "total_beds"]]],
+                ["*", 5, ["ln", ["get", "totalBeds"]]],
               ],
               "circle-color": [
                 "case",
-                [
-                  "match",
-                ["get", "isnodata"],
-                ["true"],
-                true,
-                false
-                ],
+                ["match", ["get", "isnodata"], ["true"], true, false],
                 "#0f172a",
-                [
-                  "match",
-                ["get", "iswaitlist"],
-                ["true"],
-                true,
-                false
-                ],
+                ["match", ["get", "iswaitlist"], ["true"], true, false],
                 "#7e22ce",
                 [
                   "interpolate",
                   ["linear"],
                   ["get", "occper"],
                   0,
-                  "#76FF03",
+                  "#41ffca",
                   0.8,
-                  "#76FF03",
+                  "#41ffca",
                   0.801,
-                  "#FFFF00",
+               
+                  "#ffca41",
                   0.999,
-                  "#FFFF00",
+                  "#ffca41",
                   1,
                   "#ff0000",
-                ]
+                ],
               ],
               "circle-stroke-opacity": 0.9,
               "circle-opacity": 0.9,
@@ -682,8 +718,6 @@ data.rows.forEach((eachrow: any) => {
             map.moveLayer("points-selected-shelter-layer");
           });
 
-         
-
           map.on("mouseleave", "shelterslayer", () => {
             //check if the url query string "stopmouseleave" is true
             //if it is, then don't do anything
@@ -697,8 +731,6 @@ data.rows.forEach((eachrow: any) => {
               popup.remove();
             }
           });
-
-         
 
           map.on("mousedown", "councildistrictsselectlayer", (e: any) => {
             var sourceofcouncildistselect: any = map.getSource(
@@ -735,16 +767,18 @@ data.rows.forEach((eachrow: any) => {
           <strong>${eachShelter.projectname}</strong><br/>
           ${eachShelter.type ? `Type: ${eachShelter.type}<br/>` : ""}
          
-          ${eachShelter.total_beds} beds | ${eachShelter.beds_available} beds available<br/>
+          ${eachShelter.totalBeds} beds | ${
+                  eachShelter.bedsAvailable
+                } beds available<br/>
           ${
-            eachShelter.male_available
-              ? `  ${eachShelter.male_available} male beds available<br/>`
+            eachShelter.maleAvailable
+              ? `  ${eachShelter.maleAvailable} male beds available<br/>`
               : ""
           }
           
           ${
-            eachShelter.female_available
-              ? `  ${eachShelter.female_available} female beds available<br/>`
+            eachShelter.femaleAvailable
+              ? `  ${eachShelter.femaleAvailable} female beds available<br/>`
               : ""
           }
 
@@ -752,10 +786,10 @@ data.rows.forEach((eachrow: any) => {
             eachShelter.criteria ? `Criteria: ${eachShelter.criteria}<br/>` : ""
           }
           ${
-            eachShelter.last_updated &&
+            eachShelter.lastUpdated &&
             `
             <span class='italic font-semibold'>Last Updated ${new Date(
-              eachShelter.last_updated
+              eachShelter.lastUpdated
             ).toLocaleDateString("default", {
               weekday: "short",
               year: "numeric",
@@ -777,7 +811,7 @@ data.rows.forEach((eachrow: any) => {
             // Copy coordinates array.
             const coordinates = e.features[0].geometry.coordinates.slice();
             const description = `
-          ${e.features[0].properties.organization_name}<br/>
+          ${e.features[0].properties.organizationName}<br/>
           ${e.features[0].properties.address}<br/>
           <div className='flexcollate'
           style="
@@ -1022,7 +1056,7 @@ data.rows.forEach((eachrow: any) => {
               data: citybounds,
             },
             paint: {
-              "line-color": "#dddddd",
+              "line-color": "#41ffca",//#dddddd
               "line-opacity": 1,
               "line-width": 3,
             },
@@ -1041,7 +1075,7 @@ data.rows.forEach((eachrow: any) => {
             type: "line",
             source: "citycouncildist",
             paint: {
-              "line-color": "#bbbbbb",
+              "line-color": "#41ffca",
               "line-opacity": 1,
               "line-width": 2,
             },
@@ -1169,32 +1203,26 @@ data.rows.forEach((eachrow: any) => {
     }
   }, []);
 
- 
-
   useEffect(() => {
-
-
     let arrayoffilterables: any = [];
-
+  
     arrayoffilterables.push([
       "match",
       ["get", "cd"],
-      filteredcouncildistricts.map((x) => String(x)),
+      [filteredcouncildistricts.map((x) => Number(x))][0],
       true,
       false,
     ]);
-  
+    
     if (deletemaxoccu === true) {
       arrayoffilterables.push(["match", ["get", "occper"], [1], false, true]);
     }
-
+  
     if (doneloadingmap) {
-      const filterinput = JSON.parse(
-        JSON.stringify(["all", ...arrayoffilterables])
-      );
-
+      const filterinput = ["all", ...arrayoffilterables];
+  
       console.log(filterinput);
-
+  
       if (mapref.current) {
         if (doneloadingmap === true) {
           mapref.current.setFilter("shelterslayer", filterinput);
@@ -1202,6 +1230,7 @@ data.rows.forEach((eachrow: any) => {
       }
     }
   }, [deletemaxoccu, filteredcouncildistricts]);
+  
 
   return (
     <div className="flex flex-col h-full w-screen absolute">
@@ -1235,7 +1264,7 @@ data.rows.forEach((eachrow: any) => {
             name="viewport"
             content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
           />
-          <title>Shelter Beds Occupancy | Map</title>
+          <title>Shelter Bed Availability Map | Map</title>
           <meta property="og:type" content="website" />
           <meta name="twitter:site" content="@lacontroller" />
           <meta name="twitter:creator" content="@lacontroller" />
@@ -1289,7 +1318,7 @@ data.rows.forEach((eachrow: any) => {
                 color: "#ffffff",
               }}
             >
-              <strong className="">Shelter Beds Occupancy</strong>
+              <strong className="">Shelter Bed Availability Map</strong>
             </div>
 
             <div
@@ -1398,6 +1427,30 @@ data.rows.forEach((eachrow: any) => {
                   >
                     CD #
                   </button>
+                  <button
+                    onClick={() => {
+                      setselectedfilteropened("mapKey");
+                    }}
+                    className={`px-2 border-b-2  py-1  font-semibold ${
+                      selectedfilteropened === "mapKey"
+                        ? "border-[#41ffca] text-[#41ffca]"
+                        : "hover:border-white border-transparent text-gray-50"
+                    }`}
+                  >
+                    Map Key
+                  </button>
+                  <button
+                    onClick={() => {
+                      setselectedfilteropened("population");
+                    }}
+                    className={`px-2 border-b-2  py-1  font-semibold ${
+                      selectedfilteropened === "population"
+                        ? "border-[#41ffca] text-[#41ffca]"
+                        : "hover:border-white border-transparent text-gray-50"
+                    }`}
+                  >
+                    Population Type
+                  </button>
                 </div>
                 <div className="flex flex-col">
                   {selectedfilteropened === "occupancy" && (
@@ -1423,6 +1476,47 @@ data.rows.forEach((eachrow: any) => {
                       </div>
                     </div>
                   )}
+{selectedfilteropened === "mapKey" && (
+  <div className="mt-2">
+    <div className="map-key-container">
+      <div className="map-key-item">
+        <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "green" }}></div>
+        <label htmlFor="greenBeds" className="map-key-label">
+          {colors.green} Beds available with no restrictions
+        </label>
+      </div>
+      <div className="map-key-item">
+        <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "yellow" }}></div>
+        <label htmlFor="yellowBeds" className="map-key-label">
+        {colors.yellow} Beds available with restrictions
+        </label>
+      </div>
+      <div className="map-key-item">
+        <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "red" }}></div>
+        <label htmlFor="redBeds" className="map-key-label">
+          No beds available
+        </label>
+      </div>
+      <div className="map-key-item">
+        <label htmlFor="totalBeds" className="map-key-label">
+        Total Beds: {colors.yellow + colors.green}
+        </label>
+      </div>
+      <div className="map-key-item">
+        <label htmlFor="description" className="map-key-label">
+        
+        </label>
+      </div>
+    </div>
+  </div>
+)}
+
+
+
+
+
+
+                  
                   {selectedfilteropened === "cd" && (
                     <div className="mt-2">
                       <div className="flex flex-row gap-x-1">
@@ -1470,12 +1564,12 @@ data.rows.forEach((eachrow: any) => {
                               label={
                                 <span className="text-nowrap text-xs">
                                   <span className="text-white">{item}</span>{" "}
-                                  <span className="text-blue-300">
+                                  {/* <span className="text-blue-300">
                                     {parseInt(
                                       bedsavailableperdist[String(item)]
                                     ).toLocaleString("en-US")}
-                                  </span>
-                                  <span className="text-blue-300">{"/"}</span>
+                                  </span> */}
+                                  <span className="text-blue-300"></span>
                                   <span className="text-blue-400">
                                     {parseInt(
                                       totalbedsperdist[String(item)]
@@ -1498,6 +1592,73 @@ data.rows.forEach((eachrow: any) => {
                           <span className="text-blue-400">total beds</span>{" "}
                           <span className="text-green-400">locations</span>
                         </p>
+                      </Checkbox.Group>
+                    </div>
+                  )}
+
+{selectedfilteropened === "population" && (
+                    <div className="mt-2">
+               <div className="flex flex-row gap-x-1">
+                        <button
+                          className="align-middle bg-gray-800 rounded-lg px-1  border border-gray-400 text-sm md:text-base"
+                          onClick={() => {
+                            mapref.current.setFilter("shelterslayer",["all", [
+                              "in",
+                              "type",
+                              ...populType,
+                            ]]);
+                            setfilteredPopulation(populType)
+                          }}
+                        >
+                          Select All
+                        </button>
+                        <button
+                          className="align-middle bg-gray-800 rounded-lg px-1 text-sm md:text-base border border-gray-400"
+                          onClick={() => {
+                            mapref.current.setFilter("shelterslayer",["all", [
+                              "in",
+                              "type",
+                              "Dummy",
+                            ]]);
+                            setfilteredPopulation([])
+                          }}
+                        >
+                          Unselect All
+                        </button>
+                        {/* <button
+                          onClick={() => {
+                            setfilteredPopulationpre(
+                              populType.filter(
+                                (n) => !filteredPopulation.includes(n)
+                              )
+                            );
+                          }}
+                          className="align-middle bg-gray-800 rounded-lg px-1 text-sm md:text-base  border border-gray-400"
+                        >
+                          Invert
+                        </button> */}
+                      </div>
+                      <Checkbox.Group
+                        value={filteredPopulation}
+                        onChange={setfilteredPopulationpre}
+                      >
+                        {" "}
+                        <div
+                          className={`grid grid-cols-3
+                          } gap-x-4 `}
+                        >
+                          {populType.map((item, key) => (
+                            <Checkbox
+                              value={item}
+                              label={
+                                <span className="text-nowrap text-xs">
+                                  <span className="text-white">{item}</span>{" "}
+                                </span>
+                              }
+                              key={key}
+                            />
+                          ))}
+                        </div>
                       </Checkbox.Group>
                     </div>
                   )}
@@ -1553,9 +1714,9 @@ data.rows.forEach((eachrow: any) => {
                 {shelterselected != null && (
                   <div className="text-xs">
                     <p className="font-bold">
-                      {shelterselected.properties.organization_name}
+                      {shelterselected.properties.organizationName}
                     </p>
-                    
+
                     <p>{shelterselected.properties.address}</p>
                     <div className="flex flex-row gap-x-2 my-1">
                       <a
@@ -1571,23 +1732,31 @@ data.rows.forEach((eachrow: any) => {
                       <p className="bg-gray-800 px-1 py-1 rounded-sm">
                         CD {shelterselected.properties.cd}
                       </p>
-                      
-                    <p>{shelterselected.properties.isnodata === true && (
-                      <span className="px-1 py-1 bg-opacity-50 bg-gray-800 border border-gray-100">No Data</span>
-                    )}</p>
 
-<p>{shelterselected.properties.iswaitlist === true && (
-                      <span className="px-1 py-1 bg-opacity-50 bg-purple-800 border-gray-100">Waitlist</span>
-                    )}</p>
+                      <p>
+                        {shelterselected.properties.isnodata === true && (
+                          <span className="px-1 py-1 bg-opacity-50 bg-gray-800 border border-gray-100">
+                            No Data
+                          </span>
+                        )}
+                      </p>
+
+                      <p>
+                        {shelterselected.properties.iswaitlist === true && (
+                          <span className="px-1 py-1 bg-opacity-50 bg-purple-800 border-gray-100">
+                            Waitlist
+                          </span>
+                        )}
+                      </p>
                       <p className="bg-gray-800 px-1 py-1 rounded-sm">
                         SPA {shelterselected.properties.spa}
                       </p>
                     </div>
 
                     <div className="flex flex-col gap-y-2 ">
-                      {shelterselected.properties.contact_info && (
+                      {shelterselected.properties.contactInfo && (
                         <p>
-                          Contact: {shelterselected.properties.contact_info}
+                          Contact: {shelterselected.properties.contactInfo}
                         </p>
                       )}
                       {shelterselected.properties.website && (
@@ -1621,24 +1790,24 @@ data.rows.forEach((eachrow: any) => {
                             )}
 
                             <p className="font-semibold">
-                              {eachShelter.total_beds} beds
+                              {eachShelter.totalBeds} beds
                               {" | "}
-                              {eachShelter.beds_available} beds available
+                              {eachShelter.bedsAvailable} beds available
                             </p>
 
-                            {eachShelter.male_available ? (
+                            {eachShelter.maleAvailable ? (
                               <>
                                 <p>
-                                  {eachShelter.male_available} male beds
+                                  {eachShelter.maleAvailable} male beds
                                   available
                                 </p>
                               </>
                             ) : (
                               ""
                             )}
-                            {eachShelter.female_available ? (
+                            {eachShelter.femaleAvailable ? (
                               <p>
-                                {eachShelter.female_available} female beds
+                                {eachShelter.femaleAvailable} female beds
                                 available
                               </p>
                             ) : (
@@ -1672,7 +1841,7 @@ data.rows.forEach((eachrow: any) => {
             </div>
           </div>
         </div>
-                                <span className='leading-tight hidden'></span>
+        <span className="leading-tight hidden"></span>
         <div ref={divRef} style={{}} className="map-container w-full h-full " />
 
         {(typeof window !== "undefined" ? window.innerWidth >= 640 : false) && (
