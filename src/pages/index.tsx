@@ -450,6 +450,7 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
       objectbylocation[uniq].address = eachRow.address;
       objectbylocation[uniq].spa = eachRow.spa;
       objectbylocation[uniq].cd = eachRow.cd;
+      objectbylocation[uniq].bedsAvailable = eachRow.bedsAvailable;
       objectbylocation[uniq].bedRestrictions = eachRow.bedRestrictions;
       objectbylocation[uniq].housingType = eachRow.housingType;
       objectbylocation[uniq].website = eachRow.website;
@@ -698,10 +699,18 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
               ],
               "circle-color": [
                 "match",
-                ["get", "bedRestrictions"], 
-                "Yes", "#ffca41",           
-                "No",  "#41ffca",           
-                "#ff0000"              
+                ["get", "bedsAvailable"],
+                0,
+                "#FF0000", // Red if bedsAvailable is 0
+                [
+                  "match",
+                  ["get", "bedRestrictions"],
+                  "Yes",
+                  "#FFA500", // Orange if bedRestriction is "Yes"
+                  "No",
+                  "#00FF00", // Green if bedRestriction is "No"
+                  "#FF0000", // Red for other cases (if bedRestriction has other values or is not available)
+                ],
               ],
               "circle-stroke-opacity": 0.9,
               "circle-opacity": 0.9,
@@ -709,6 +718,8 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
               "circle-stroke-color": "hsl(0, 12%, 13%)",
             },
           });
+          
+          
           
 
           setdatasetloaded(true);
