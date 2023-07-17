@@ -709,7 +709,7 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
                   "#FFA500", // Orange if bedRestriction is "Yes"
                   "No",
                   "#00FF00", // Green if bedRestriction is "No"
-                  "#FF0000", // Red for other cases (if bedRestriction has other values or is not available)
+                  "#00FF00", // Red for other cases (if bedRestriction has other values or is not available)
                 ],
               ],
               "circle-stroke-opacity": 0.9,
@@ -1516,13 +1516,13 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
   <div className="mt-2">
     <div className="map-key-container">
       <div className="map-key-item">
-        <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "green" }}></div>
+        <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "#41ffca" }}></div>
         <label htmlFor="greenBeds" className="map-key-label">
           {colors.green} Beds available with no restrictions
         </label>
       </div>
       <div className="map-key-item">
-        <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "yellow" }}></div>
+        <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "#ffca41" }}></div>
         <label htmlFor="yellowBeds" className="map-key-label">
         {colors.yellow} Beds available with restrictions
         </label>
