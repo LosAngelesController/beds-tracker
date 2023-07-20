@@ -39,7 +39,6 @@ import { assertDeclareExportAllDeclaration } from "@babel/types";
 import { GeoJsonProperties, MultiPolygon, Polygon } from "geojson";
 import { Set } from "typescript";
 
- 
 function isTouchScreen() {
   return window.matchMedia("(hover: none)").matches;
 }
@@ -52,9 +51,11 @@ function getLang() {
 }
 //https://backend-beds-tracker-t4gf5mnipq-uw.a.run.app/shelters"
 //https://api.sheety.co/aacf3e0f7311db48c4e758ecf773731f/cityOfLaShelters/master
+
+//https://api.sheety.co/aacf3e0f7311db48c4e758ecf773731f/cityOfLaShelters/master
 const apiofshelters =
   "https://api.sheety.co/aacf3e0f7311db48c4e758ecf773731f/cityOfLaShelters/master";
-
+ 
 var councilareasdistrict: any = {
   "1": 39172374.513557486,
   "2": 56028687.75752604,
@@ -164,12 +165,43 @@ const Home: NextPage = () => {
   const [createdby, setcreatedby] = useState<string[]>(listofcreatedbyoptions);
   const [filteredcouncildistricts, setfilteredcouncildistricts] =
     useState<string[]>(listofcouncildists);
-    const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "Senior", "Women", "Substance Recovery", "Women and children", "Adult Recuperative Care", "Re-entry Women", "Re-entry Men", "Re-entry Women and children", "Re-entry", "Youth"]
-    const [filteredPopulation, setfilteredPopulation] =
+  const populType = [
+    "Adult",
+    "Family",
+    "Recuperative Care",
+    "Mens",
+    "Veteran",
+    "Senior",
+    "Women",
+    "Substance Recovery",
+    "Women and children",
+    "Adult Recuperative Care",
+    "Re-entry Women",
+    "Re-entry Men",
+    "Re-entry Women and children",
+    "Re-entry",
+    "Youth",
+  ];
+  const [filteredPopulation, setfilteredPopulation] =
     useState<string[]>(populType);
-    const housingType = ["Interim Housing", "A Bridge Home (ABH)", "Roadmap", "Crisis Housing", "Transitional Housing", "Emergency Shelter", "nside Safe", "Bridge Housing", "Resedential Recovery", "Transitional Housing", "Project Homekey", "Tiny Home Village", "Re-entry Women and children", "Re-entry", "Youth"]
-    const [filteredHousing, setfilteredHousing] =
-    useState<string[]>(housingType);
+  const housingType = [
+    "Interim Housing",
+    "A Bridge Home (ABH)",
+    "Roadmap",
+    "Crisis Housing",
+    "Transitional Housing",
+    "Emergency Shelter",
+    "nside Safe",
+    "Bridge Housing",
+    "Resedential Recovery",
+    "Transitional Housing",
+    "Project Homekey",
+    "Tiny Home Village",
+    "Re-entry Women and children",
+    "Re-entry",
+    "Youth",
+  ];
+  const [filteredHousing, setfilteredHousing] = useState<string[]>(housingType);
   const shouldfilteropeninit =
     typeof window != "undefined" ? window.innerWidth >= 640 : false;
   const [showtotalarea, setshowtotalarea] = useState(false);
@@ -192,17 +224,16 @@ const Home: NextPage = () => {
   const [bedsavailableperdist, setbedsavailableperdist] = useState<any>({});
   const [filterpanelopened, setfilterpanelopened] =
     useState(shouldfilteropeninit);
-// const [objectByLocation, setObjectByLocation] = useState([])
-// console.log(objectByLocation)
-const [colors, setColors] = useState({
-  green: 0,
-  yellow: 0,
-  red: 0,
-});
-    // console.log(colors)
+  // const [objectByLocation, setObjectByLocation] = useState([])
+  // console.log(objectByLocation)
+  const [colors, setColors] = useState({
+    green: 0,
+    yellow: 0,
+    red: 0,
+  });
+  // console.log(colors)
   const [mapboxloaded, setmapboxloaded] = useState(false);
 
-  
   const setfilteredcouncildistrictspre = (input: string[]) => {
     // console.log("inputvalidator", input);
     if (input.length === 0) {
@@ -219,19 +250,14 @@ const [colors, setColors] = useState({
     } else {
       setfilteredPopulation(input);
       let arrayoffilterables1: any = [];
-    
+
       if (input.length > 0) {
-        arrayoffilterables1.push([
-          "in",
-          "type",
-          ...input,
-        ]);
+        arrayoffilterables1.push(["in", "type", ...input]);
       }
 
       const filterinput1 = ["all", ...arrayoffilterables1];
-      debugger
+      debugger;
       mapref.current.setFilter("shelterslayer", filterinput1);
-
     }
   };
 
@@ -242,18 +268,13 @@ const [colors, setColors] = useState({
     } else {
       setfilteredHousing(input);
       let arrayoffilterables1: any = [];
-    
+
       if (input.length > 0) {
-        arrayoffilterables1.push([
-          "in",
-          "housingType",
-          ...input,
-        ]);
+        arrayoffilterables1.push(["in", "housingType", ...input]);
       }
       const filterinput1 = ["all", ...arrayoffilterables1];
       // debugger
       mapref.current.setFilter("shelterslayer", filterinput1);
-
     }
   };
 
@@ -407,8 +428,6 @@ const [colors, setColors] = useState({
   const divRef: any = React.useRef<HTMLDivElement>(null);
 
   function convertDataFromBackend(data: any) {
- 
-
     var objectbylocation: any = {};
 
     data.master.forEach((eachRow: any) => {
@@ -440,8 +459,7 @@ const [colors, setColors] = useState({
 
       objectbylocation[uniq].occper =
         1 -
-        objectbylocation[uniq].bedsAvailable /
-          objectbylocation[uniq].totalBeds;
+        objectbylocation[uniq].bedsAvailable / objectbylocation[uniq].totalBeds;
 
       objectbylocation[uniq].organizationName = eachRow.organizationName;
       objectbylocation[uniq].lat = eachRow.lat;
@@ -466,7 +484,7 @@ const [colors, setColors] = useState({
     });
 
     // console.log(objectbylocation);
-// setObjectByLocation(objectbylocation)
+    // setObjectByLocation(objectbylocation)
 
     const featuresarray = Object.values(objectbylocation).map(
       (eachLocation: any) => {
@@ -498,10 +516,8 @@ const [colors, setColors] = useState({
   //   if (occper >= 0 && occper <= 0.8) {
   //       occper++;
   //   }
-  
-  // }, {});
-  
 
+  // }, {});
 
   // console.log(greenColor);
   useEffect(() => {
@@ -511,7 +527,6 @@ const [colors, setColors] = useState({
       // console.log("app render");
     }
 
-    
     // mapboxgl.workerClass = require('worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker').default;
     //import locations from './features.geojson'
 
@@ -537,13 +552,11 @@ const [colors, setColors] = useState({
     const debugParam = urlParams.get("debug");
 
     var mapparams: any = {
-      container: divRef.current,  
-      style: "mapbox://styles/mapbox/dark-v10",  
-      center: [-118.41, 34],  
-      zoom: formulaForZoom(),  
+      container: divRef.current,
+      style: "mapbox://styles/mapbox/dark-v10",
+      center: [-118.41, 34],
+      zoom: formulaForZoom(),
     };
-
-   
 
     const map = new mapboxgl.Map(mapparams);
     mapref.current = map;
@@ -630,14 +643,12 @@ const [colors, setColors] = useState({
       fetch(apiofshelters)
         .then((response) => response.json())
         .then((data) => {
-         // console.log(data);
+          // console.log(data);
 
           sheltersperdistcompute(data);
 
           const geojsonsdflsf = convertDataFromBackend(data);
 
-          
-          
           const counts = data.master.reduce(
             (acc: any, obj: any) => {
               const occper = obj.bedRestrictions;
@@ -645,7 +656,7 @@ const [colors, setColors] = useState({
               if (occper === "Yes") {
                 acc.yellow += Number(totalbeds);
               } else if (occper === "No") {
-                debugger
+                debugger;
                 acc.green += Number(totalbeds);
               } else {
                 acc.red++;
@@ -654,16 +665,13 @@ const [colors, setColors] = useState({
             },
             { yellow: 0, green: 0, red: 0 }
           );
-          
+
           setColors((prevColors) => ({
             ...prevColors,
             green: prevColors.green + counts.green,
             yellow: prevColors.yellow + counts.yellow,
             red: prevColors.red + counts.red,
           }));
-          
-          
-          
 
           map.addSource("sheltersv2", {
             type: "geojson",
@@ -762,8 +770,6 @@ const [colors, setColors] = useState({
               "circle-stroke-color": "hsl(0, 12%, 13%)",
             },
           });
-          
-          
 
           setdatasetloaded(true);
 
@@ -1272,7 +1278,7 @@ const [colors, setColors] = useState({
 
   useEffect(() => {
     let arrayoffilterables: any = [];
-  
+
     arrayoffilterables.push([
       "match",
       ["get", "cd"],
@@ -1280,16 +1286,16 @@ const [colors, setColors] = useState({
       true,
       false,
     ]);
-    
+
     if (deletemaxoccu === true) {
       arrayoffilterables.push(["match", ["get", "occper"], [1], false, true]);
     }
-  
+
     if (doneloadingmap) {
       const filterinput = ["all", ...arrayoffilterables];
-  
+
       // console.log(filterinput);
-  
+
       if (mapref.current) {
         if (doneloadingmap === true) {
           mapref.current.setFilter("shelterslayer", filterinput);
@@ -1297,7 +1303,6 @@ const [colors, setColors] = useState({
       }
     }
   }, [deletemaxoccu, filteredcouncildistricts]);
-  
 
   return (
     <div className="flex flex-col h-full w-screen absolute">
@@ -1555,47 +1560,63 @@ const [colors, setColors] = useState({
                       </div>
                     </div>
                   )}
-{selectedfilteropened === "mapKey" && (
-  <div className="mt-2">
-    <div className="map-key-container">
-      <div className="map-key-item">
-        <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "green" }}></div>
-        <label htmlFor="greenBeds" className="map-key-label">
-          {colors.green/2} Beds available with no restrictions
-        </label>
-      </div>
-      <div className="map-key-item">
-        <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "yellow" }}></div>
-        <label htmlFor="yellowBeds" className="map-key-label">
-        {colors.yellow/2} Beds available with restrictions
-        </label>
-      </div>
-      <div className="map-key-item">
-        <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "red" }}></div>
-        <label htmlFor="redBeds" className="map-key-label">
-        No beds available
-        </label>
-      </div>
-      <div className="map-key-item">
-        <label htmlFor="totalBeds" className="map-key-label">
-          Total Beds: {colors.yellow + colors.green}
-        </label>
-      </div>
-      {/* <div className="map-key-item">
+                  {selectedfilteropened === "mapKey" && (
+                    <div className="mt-2">
+                      <div className="map-key-container">
+                        <div className="map-key-item">
+                          <div
+                            style={{
+                              width: "16px",
+                              height: "16px",
+                              borderRadius: "50%",
+                              backgroundColor: "#41ffca",
+                            }}
+                          ></div>
+                          <label htmlFor="greenBeds" className="map-key-label">
+                            {colors.green / 2} Beds available with no
+                            restrictions
+                          </label>
+                        </div>
+                        <div className="map-key-item">
+                          <div
+                            style={{
+                              width: "16px",
+                              height: "16px",
+                              borderRadius: "50%",
+                              backgroundColor: "#ffca41",
+                            }}
+                          ></div>
+                          <label htmlFor="yellowBeds" className="map-key-label">
+                            {colors.yellow / 2} Beds available with restrictions
+                          </label>
+                        </div>
+                        <div className="map-key-item">
+                          <div
+                            style={{
+                              width: "16px",
+                              height: "16px",
+                              borderRadius: "50%",
+                              backgroundColor: "red",
+                            }}
+                          ></div>
+                          <label htmlFor="redBeds" className="map-key-label">
+                            No beds available
+                          </label>
+                        </div>
+                        <div className="map-key-item">
+                          <label htmlFor="totalBeds" className="map-key-label">
+                            Total Beds: {colors.yellow + colors.green}
+                          </label>
+                        </div>
+                        {/* <div className="map-key-item">
         <label htmlFor="description" className="map-key-label">
           Description: Make sure to note the number of green beds available, and so on...
         </label>
       </div> */}
-    </div>
-  </div>
-)}
+                      </div>
+                    </div>
+                  )}
 
-
-
-
-
-
-                  
                   {selectedfilteropened === "cd" && (
                     <div className="mt-2">
                       <div className="flex flex-row gap-x-1">
@@ -1675,18 +1696,17 @@ const [colors, setColors] = useState({
                     </div>
                   )}
 
-{selectedfilteropened === "population" && (
+                  {selectedfilteropened === "population" && (
                     <div className="mt-2">
-               <div className="flex flex-row gap-x-1">
+                      <div className="flex flex-row gap-x-1">
                         <button
                           className="align-middle bg-gray-800 rounded-lg px-1  border border-gray-400 text-sm md:text-base"
                           onClick={() => {
-                            mapref.current.setFilter("shelterslayer",["all", [
-                              "in",
-                              "type",
-                              ...populType,
-                            ]]);
-                            setfilteredPopulation(populType)
+                            mapref.current.setFilter("shelterslayer", [
+                              "all",
+                              ["in", "type", ...populType],
+                            ]);
+                            setfilteredPopulation(populType);
                           }}
                         >
                           Select All
@@ -1694,12 +1714,11 @@ const [colors, setColors] = useState({
                         <button
                           className="align-middle bg-gray-800 rounded-lg px-1 text-sm md:text-base border border-gray-400"
                           onClick={() => {
-                            mapref.current.setFilter("shelterslayer",["all", [
-                              "in",
-                              "type",
-                              "Dummy",
-                            ]]);
-                            setfilteredPopulation([])
+                            mapref.current.setFilter("shelterslayer", [
+                              "all",
+                              ["in", "type", "Dummy"],
+                            ]);
+                            setfilteredPopulation([]);
                           }}
                         >
                           Unselect All
@@ -1742,18 +1761,17 @@ const [colors, setColors] = useState({
                     </div>
                   )}
 
-{selectedfilteropened === "housing" && (
+                  {selectedfilteropened === "housing" && (
                     <div className="mt-2">
-               <div className="flex flex-row gap-x-1">
+                      <div className="flex flex-row gap-x-1">
                         <button
                           className="align-middle bg-gray-800 rounded-lg px-1  border border-gray-400 text-sm md:text-base"
                           onClick={() => {
-                            mapref.current.setFilter("shelterslayer",["all", [
-                              "in",
-                              "housingType",
-                              ...housingType,
-                            ]]);
-                            setfilteredHousing(housingType)
+                            mapref.current.setFilter("shelterslayer", [
+                              "all",
+                              ["in", "housingType", ...housingType],
+                            ]);
+                            setfilteredHousing(housingType);
                           }}
                         >
                           Select All
@@ -1761,12 +1779,11 @@ const [colors, setColors] = useState({
                         <button
                           className="align-middle bg-gray-800 rounded-lg px-1 text-sm md:text-base border border-gray-400"
                           onClick={() => {
-                            mapref.current.setFilter("shelterslayer",["all", [
-                              "in",
-                              "type",
-                              "Dummy",
-                            ]]);
-                            setfilteredHousing([])
+                            mapref.current.setFilter("shelterslayer", [
+                              "all",
+                              ["in", "type", "Dummy"],
+                            ]);
+                            setfilteredHousing([]);
                           }}
                         >
                           Unselect All
@@ -1901,9 +1918,7 @@ const [colors, setColors] = useState({
 
                     <div className="flex flex-col gap-y-2 ">
                       {shelterselected.properties.contactInfo && (
-                        <p>
-                          Contact: {shelterselected.properties.contactInfo}
-                        </p>
+                        <p>Contact: {shelterselected.properties.contactInfo}</p>
                       )}
                       {shelterselected.properties.website && (
                         <p>
