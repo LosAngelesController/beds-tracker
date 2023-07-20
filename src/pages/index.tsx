@@ -164,7 +164,7 @@ const Home: NextPage = () => {
   const [createdby, setcreatedby] = useState<string[]>(listofcreatedbyoptions);
   const [filteredcouncildistricts, setfilteredcouncildistricts] =
     useState<string[]>(listofcouncildists);
-const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "Senior", "Women", "Substance Recovery", "Women and children", "Adult Recuperative Care", "Re-entry Women", "Re-entry Men", "Re-entry Women and children", "Re-entry", "Youth"]
+    const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "Senior", "Women", "Substance Recovery", "Women and children", "Adult Recuperative Care", "Re-entry Women", "Re-entry Men", "Re-entry Women and children", "Re-entry", "Youth"]
     const [filteredPopulation, setfilteredPopulation] =
     useState<string[]>(populType);
     const housingType = ["Interim Housing", "A Bridge Home (ABH)", "Roadmap", "Crisis Housing", "Transitional Housing", "Emergency Shelter", "nside Safe", "Bridge Housing", "Resedential Recovery", "Transitional Housing", "Project Homekey", "Tiny Home Village", "Re-entry Women and children", "Re-entry", "Youth"]
@@ -194,17 +194,17 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
     useState(shouldfilteropeninit);
 // const [objectByLocation, setObjectByLocation] = useState([])
 // console.log(objectByLocation)
-    const [ colors, setColors] = useState({
-      green:"",
-      yellow:"",
-      red:""
-    })
-    console.log(colors)
+const [colors, setColors] = useState({
+  green: 0,
+  yellow: 0,
+  red: 0,
+});
+    // console.log(colors)
   const [mapboxloaded, setmapboxloaded] = useState(false);
 
   
   const setfilteredcouncildistrictspre = (input: string[]) => {
-    console.log("inputvalidator", input);
+    // console.log("inputvalidator", input);
     if (input.length === 0) {
       setfilteredcouncildistricts(["99999"]);
     } else {
@@ -251,7 +251,7 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
         ]);
       }
       const filterinput1 = ["all", ...arrayoffilterables1];
-      debugger
+      // debugger
       mapref.current.setFilter("shelterslayer", filterinput1);
 
     }
@@ -335,14 +335,14 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
   };
 
   const setsliderMonthVerTwo = (input: any) => {
-    console.log(input);
+    // console.log(input);
     setsliderMonthAct(input);
   };
 
   function turfify(polygon: any) {
     var turffedpolygon;
 
-    console.log("polygon on line 100", polygon);
+    // console.log("polygon on line 100", polygon);
 
     if (polygon.geometry.type == "Polygon") {
       turffedpolygon = turf.polygon(polygon.geometry.coordinates);
@@ -387,11 +387,11 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
       if (toprightgeocoderbox) {
         if (typeof window != "undefined") {
           if (window.innerWidth >= 768) {
-            console.log("changing to block");
+            // console.log("changing to block");
             toprightgeocoderbox.style.display = "block";
           } else {
             toprightgeocoderbox.style.display = "none";
-            console.log("hiding");
+            // console.log("hiding");
           }
         } else {
           toprightgeocoderbox.style.display = "none";
@@ -505,10 +505,10 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
 
   // console.log(greenColor);
   useEffect(() => {
-    console.log("map div", divRef);
+    // console.log("map div", divRef);
 
     if (divRef.current) {
-      console.log("app render");
+      // console.log("app render");
     }
 
     
@@ -558,7 +558,7 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
         mapboxgl.setRTLTextPlugin(
           "https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.10.1/mapbox-gl-rtl-text.js",
           (callbackinfo: any) => {
-            console.log(callbackinfo);
+            // console.log(callbackinfo);
             rtldone = true;
           }
         );
@@ -598,8 +598,8 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
           ],
         });
 
-        console.log("event.result.geometry", eventmapbox.result.geometry);
-        console.log("geocoderesult", eventmapbox);
+        // console.log("event.result.geometry", eventmapbox.result.geometry);
+        // console.log("geocoderesult", eventmapbox);
       };
 
       const processgeocodereventselect = (object: any) => {
@@ -636,27 +636,32 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
 
           const geojsonsdflsf = convertDataFromBackend(data);
 
-          const counts = geojsonsdflsf.features.reduce(
+          
+          
+          const counts = data.master.reduce(
             (acc: any, obj: any) => {
-              const occper = obj.properties.bedRestrictions;
-              if (occper == "Yes") {
-                acc.yellow++;
-              } else if (occper == "No") {
-                acc.green++;
+              const occper = obj.bedRestrictions;
+              const totalbeds = obj.bedsAvailable;
+              if (occper === "Yes") {
+                acc.yellow += Number(totalbeds);
+              } else if (occper === "No") {
+                debugger
+                acc.green += Number(totalbeds);
               } else {
                 acc.red++;
               }
               return acc;
             },
-            {yellow: 0, green: 0, red: 0 }
+            { yellow: 0, green: 0, red: 0 }
           );
           
           setColors((prevColors) => ({
             ...prevColors,
-            green: counts.green,
-            yellow: counts.yellow,
-            red: counts.red
+            green: prevColors.green + counts.green,
+            yellow: prevColors.yellow + counts.yellow,
+            red: prevColors.red + counts.red,
           }));
+          
           
           
 
@@ -683,6 +688,41 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
           //     });
           // }, 2000);
 
+          // map.addLayer({
+          //   id: "shelterslayer",
+          //   type: "circle",
+          //   source: "sheltersv2",
+          //   paint: {
+          //     "circle-radius": [
+          //       "interpolate",
+          //       ["linear"],
+          //       ["zoom"],
+          //       10,
+          //       ["*", 1.2, ["ln", ["get", "totalBeds"]]],
+          //       22,
+          //       ["*", 5, ["ln", ["get", "totalBeds"]]],
+          //     ],
+          //     "circle-color": [
+          //       "match",
+          //       ["get", "bedsAvailable"],
+          //       0,
+          //       "#FF0000", // Red if bedsAvailable is 0
+          //       [
+          //         "match",
+          //         ["get", "bedRestrictions"],
+          //         "Yes",
+          //         "#FFA500", // Orange if bedRestriction is "Yes"
+          //         "No",
+          //         "#00FF00", // Green if bedRestriction is "No"
+          //         "#00FF00", // Red for other cases (if bedRestriction has other values or is not available)
+          //       ],
+          //     ],
+          //     "circle-stroke-opacity": 0.9,
+          //     "circle-opacity": 0.9,
+          //     "circle-stroke-width": 2,
+          //     "circle-stroke-color": "hsl(0, 12%, 13%)",
+          //   },
+          // });
           map.addLayer({
             id: "shelterslayer",
             type: "circle",
@@ -701,15 +741,19 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
                 "match",
                 ["get", "bedsAvailable"],
                 0,
-                "#FF0000", // Red if bedsAvailable is 0
                 [
                   "match",
                   ["get", "bedRestrictions"],
                   "Yes",
-                  "#FFA500", // Orange if bedRestriction is "Yes"
-                  "No",
-                  "#00FF00", // Green if bedRestriction is "No"
-                  "#00FF00", // Red for other cases (if bedRestriction has other values or is not available)
+                  "#FF0000", // Red if bedsAvailable is 0 and bedRestrictions is "Yes"
+                  "#00FF00", // Green if bedsAvailable is 0 and bedRestrictions is "No"
+                ],
+                [
+                  "match",
+                  ["get", "bedRestrictions"],
+                  "Yes",
+                  "#FFA500", // Orange if bedsAvailable has a value other than 0 and bedRestrictions is "Yes"
+                  "#00FF00", // Green if bedsAvailable has a value other than 0 and bedRestrictions is "No"
                 ],
               ],
               "circle-stroke-opacity": 0.9,
@@ -718,7 +762,6 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
               "circle-stroke-color": "hsl(0, 12%, 13%)",
             },
           });
-          
           
           
 
@@ -780,9 +823,9 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
 
             var arrayOfSheltersText: any = [];
 
-            console.log("properties", e.features[0].properties);
+            // console.log("properties", e.features[0].properties);
 
-            console.log(JSON.parse(e.features[0].properties.shelterarray));
+            // console.log(JSON.parse(e.features[0].properties.shelterarray));
 
             JSON.parse(e.features[0].properties.shelterarray).forEach(
               (eachShelter: any) => {
@@ -906,7 +949,7 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
       var geocoderId = document.getElementById("geocoder");
 
       if (geocoderId) {
-        console.log("geocoder div found");
+        // console.log("geocoder div found");
 
         if (!document.querySelector(".geocoder input")) {
           geocoderId.appendChild(geocoder3.onAdd(map));
@@ -1245,7 +1288,7 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
     if (doneloadingmap) {
       const filterinput = ["all", ...arrayoffilterables];
   
-      console.log(filterinput);
+      // console.log(filterinput);
   
       if (mapref.current) {
         if (doneloadingmap === true) {
@@ -1516,21 +1559,21 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
   <div className="mt-2">
     <div className="map-key-container">
       <div className="map-key-item">
-        <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "#41ffca" }}></div>
+        <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "green" }}></div>
         <label htmlFor="greenBeds" className="map-key-label">
-          {colors.green} Beds available with no restrictions
+          {colors.green/2} Beds available with no restrictions
         </label>
       </div>
       <div className="map-key-item">
-        <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "#ffca41" }}></div>
+        <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "yellow" }}></div>
         <label htmlFor="yellowBeds" className="map-key-label">
-        {colors.yellow} Beds available with restrictions
+        {colors.yellow/2} Beds available with restrictions
         </label>
       </div>
       <div className="map-key-item">
         <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "red" }}></div>
         <label htmlFor="redBeds" className="map-key-label">
-          No beds available
+        No beds available
         </label>
       </div>
       <div className="map-key-item">
@@ -1809,7 +1852,7 @@ const populType = ["Adult", "Family", "Recuperative Care", "Mens", "Veteran", "S
                         );
                       }
                     } else {
-                      console.log("no ref current");
+                      // console.log("no ref current");
                     }
                   }}
                 />
