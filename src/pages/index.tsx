@@ -55,7 +55,7 @@ function getLang() {
 //https://api.sheety.co/aacf3e0f7311db48c4e758ecf773731f/cityOfLaShelters/master
 const apiofshelters =
   "https://api.sheety.co/aacf3e0f7311db48c4e758ecf773731f/cityOfLaShelters/master";
- //s
+//s
 var councilareasdistrict: any = {
   "1": 39172374.513557486,
   "2": 56028687.75752604,
@@ -1573,7 +1573,7 @@ const Home: NextPage = () => {
                             }}
                           ></div>
                           <label htmlFor="greenBeds" className="map-key-label">
-                            {colors.green / 2} Beds available with no
+                            {colors.green} Beds available with no
                             restrictions
                           </label>
                         </div>
@@ -1587,7 +1587,7 @@ const Home: NextPage = () => {
                             }}
                           ></div>
                           <label htmlFor="yellowBeds" className="map-key-label">
-                            {colors.yellow / 2} Beds available with restrictions
+                            {colors.yellow} Beds available with restrictions
                           </label>
                         </div>
                         <div className="map-key-item">
