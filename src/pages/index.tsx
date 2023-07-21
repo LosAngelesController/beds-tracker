@@ -55,7 +55,7 @@ function getLang() {
 //https://api.sheety.co/aacf3e0f7311db48c4e758ecf773731f/cityOfLaShelters/master
 const apiofshelters =
   "https://api.sheety.co/aacf3e0f7311db48c4e758ecf773731f/cityOfLaShelters/master";
- 
+ //s
 var councilareasdistrict: any = {
   "1": 39172374.513557486,
   "2": 56028687.75752604,
