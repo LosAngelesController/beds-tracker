@@ -191,7 +191,7 @@ const Home: NextPage = () => {
     "Crisis Housing",
     "Transitional Housing",
     "Emergency Shelter",
-    "nside Safe",
+    "Inside Safe",
     "Bridge Housing",
     "Resedential Recovery",
     "Transitional Housing",
@@ -754,14 +754,14 @@ const Home: NextPage = () => {
                   ["get", "bedRestrictions"],
                   "Yes",
                   "#FF0000", // Red if bedsAvailable is 0 and bedRestrictions is "Yes"
-                  "#00FF00", // Green if bedsAvailable is 0 and bedRestrictions is "No"
+                  "#41FFCA", // Green if bedsAvailable is 0 and bedRestrictions is "No"
                 ],
                 [
                   "match",
                   ["get", "bedRestrictions"],
                   "Yes",
-                  "#FFA500", // Orange if bedsAvailable has a value other than 0 and bedRestrictions is "Yes"
-                  "#00FF00", // Green if bedsAvailable has a value other than 0 and bedRestrictions is "No"
+                  "#ffca41", // Orange if bedsAvailable has a value other than 0 and bedRestrictions is "Yes"
+                  "#41FFCA", // Green if bedsAvailable has a value other than 0 and bedRestrictions is "No"
                 ],
               ],
               "circle-stroke-opacity": 0.9,
@@ -1573,8 +1573,7 @@ const Home: NextPage = () => {
                             }}
                           ></div>
                           <label htmlFor="greenBeds" className="map-key-label">
-                            {colors.green} Beds available with no
-                            restrictions
+                            {colors.green} Beds available with no restrictions
                           </label>
                         </div>
                         <div className="map-key-item">
