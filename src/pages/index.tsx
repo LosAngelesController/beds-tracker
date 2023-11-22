@@ -859,10 +859,10 @@ const Home: NextPage = () => {
             eachShelter.criteria ? `Criteria: ${eachShelter.criteria}<br/>` : ""
           }
           ${
-            eachShelter.lastUpdated &&
+            eachShelter.dateLastUpdated &&
             `
             <span class='italic font-semibold'>Last Updated ${new Date(
-              eachShelter.lastUpdated
+              eachShelter.dateLastUpdated
             ).toLocaleDateString("default", {
               weekday: "short",
               year: "numeric",
