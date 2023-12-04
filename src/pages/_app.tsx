@@ -20,8 +20,13 @@ function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
     TagManager.initialize(tagManagerArgs);
   });
- 
-  return   <Analytics />;<Component {...pageProps} />;
+
+  return (
+    <>
+      <Analytics />
+      <Component {...pageProps} />
+    </>
+  );
 }
 
 export default MyApp;
