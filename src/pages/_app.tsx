@@ -7,7 +7,7 @@ import "../styles/rc-slider.css";
 
 import "./../../node_modules/@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
 import "./mapboxdark.css";
-import { Analytics } from '@vercel/analytics/react';
+import { Analytics } from "@vercel/analytics/react";
 
 import TagManager from "react-gtm-module";
 import { useEffect } from "react";
@@ -20,8 +20,8 @@ function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
     TagManager.initialize(tagManagerArgs);
   });
-  <Analytics />
-  return <Component {...pageProps} />;
+ 
+  return   <Analytics />;<Component {...pageProps} />;
 }
 
 export default MyApp;
