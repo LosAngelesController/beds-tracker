@@ -169,13 +169,13 @@ const Home: NextPage = () => {
     "Adult",
     "Family",
     "Recuperative Care",
-    "Mens",
-    "Veteran",
-    "Senior",
+    "Men",
+    "Veterans",
+    "Seniors",
     "Women",
     "Substance Recovery",
     "Women and children",
-    "Adult Recuperative Care",
+    // "Adult Recuperative Care",
     "Re-entry Women",
     "Re-entry Men",
     "Re-entry Women and children",
@@ -186,20 +186,25 @@ const Home: NextPage = () => {
     useState<string[]>(populType);
   const housingType = [
     "Interim Housing",
-    "A Bridge Home (ABH)",
+   "A Bridge Home (ABH)",
     "Roadmap",
     "Crisis Housing",
     "Transitional Housing",
     "Emergency Shelter",
-    "Inside Safe",
-    "Bridge Housing",
+    "Inside Safe ",
+    "Bridge Housing ",
     "Resedential Recovery",
     "Transitional Housing",
     "Project Homekey",
     "Tiny Home Village",
-    "Re-entry Women and children",
-    "Re-entry",
-    "Youth",
+    // "Re-entry Women and children",
+    // "Re-entry",
+    "Independent Living Program",
+    "Recuperative Care",
+    "Safe Haven",
+    "Winter Shelter ",
+
+
   ];
   const [filteredHousing, setfilteredHousing] = useState<string[]>(housingType);
   const shouldfilteropeninit =
@@ -256,7 +261,7 @@ const Home: NextPage = () => {
       }
 
       const filterinput1 = ["all", ...arrayoffilterables1];
-      debugger;
+      // debugger;
       mapref.current.setFilter("shelterslayer", filterinput1);
     }
   };
@@ -427,89 +432,162 @@ const Home: NextPage = () => {
 
   const divRef: any = React.useRef<HTMLDivElement>(null);
 
-  function convertDataFromBackend(data: any) {
-    var objectbylocation: any = {};
+  // function convertDataFromBackend(data: any) {
+  //   var objectbylocation: any = {};
 
-    data.master.forEach((eachRow: any) => {
-      const uniq = `${eachRow.lat}` + `${eachRow.lng}`;
+  //   data.master.forEach((eachRow: any) => {
+  //     const uniq = `${eachRow.lat}` + `${eachRow.lng}`;
 
-      if (objectbylocation[uniq] === undefined) {
-        objectbylocation[uniq] = {};
-      }
+  //     if (objectbylocation[uniq] === undefined) {
+  //       objectbylocation[uniq] = {};
+  //     }
 
-      if (eachRow.totalBeds === null) {
-        eachRow.totalBeds = 0;
-      }
+  //     if (eachRow.totalBeds === null) {
+  //       eachRow.totalBeds = 0;
+  //     }
 
-      if (eachRow.bedsAvailable === null) {
-        eachRow.bedsAvailable = 0;
-      }
+  //     if (eachRow.bedsAvailable === null) {
+  //       eachRow.bedsAvailable = 0;
+  //     }
 
-      if (objectbylocation[uniq].totalBeds === undefined) {
-        objectbylocation[uniq].totalBeds = eachRow.totalBeds;
-      } else {
-        objectbylocation[uniq].totalBeds += eachRow.totalBeds;
-      }
+  //     if (objectbylocation[uniq].totalBeds === undefined) {
+  //       objectbylocation[uniq].totalBeds = eachRow.totalBeds;
+  //     } else {
+  //       objectbylocation[uniq].totalBeds += eachRow.totalBeds;
+  //     }
 
-      if (objectbylocation[uniq].bedsAvailable === undefined) {
-        objectbylocation[uniq].bedsAvailable = eachRow.bedsAvailable;
-      } else {
-        objectbylocation[uniq].bedsAvailable += eachRow.bedsAvailable;
-      }
+  //     if (objectbylocation[uniq].bedsAvailable === undefined) {
+  //       objectbylocation[uniq].bedsAvailable = eachRow.bedsAvailable;
+  //     } else {
+  //       objectbylocation[uniq].bedsAvailable += eachRow.bedsAvailable;
+  //     }
 
-      objectbylocation[uniq].occper =
-        1 -
-        objectbylocation[uniq].bedsAvailable / objectbylocation[uniq].totalBeds;
+  //     objectbylocation[uniq].occper =
+  //       1 -
+  //       objectbylocation[uniq].bedsAvailable / objectbylocation[uniq].totalBeds;
 
-      objectbylocation[uniq].organizationName = eachRow.organizationName;
-      objectbylocation[uniq].lat = eachRow.lat;
-      objectbylocation[uniq].lng = eachRow.lng;
-      objectbylocation[uniq].type = eachRow.type;
-      objectbylocation[uniq].address = eachRow.address;
-      objectbylocation[uniq].spa = eachRow.spa;
-      objectbylocation[uniq].cd = eachRow.cd;
-      objectbylocation[uniq].bedsAvailable = eachRow.bedsAvailable;
-      objectbylocation[uniq].bedRestrictions = eachRow.bedRestrictions;
-      objectbylocation[uniq].housingType = eachRow.housingType;
-      objectbylocation[uniq].website = eachRow.website;
-      objectbylocation[uniq].contactInfo = eachRow.contactInfo;
-      objectbylocation[uniq].isnodata = String(eachRow.isnodata);
-      objectbylocation[uniq].iswaitlist = String(eachRow.iswaitlist);
-      objectbylocation[uniq].waitingList = eachRow.waitingList;
+  //     objectbylocation[uniq].organizationName = eachRow.organizationName;
+  //     objectbylocation[uniq].lat = eachRow.lat;
+  //     objectbylocation[uniq].lng = eachRow.lng;
+  //     objectbylocation[uniq].type = eachRow.type;
+  //     objectbylocation[uniq].address = eachRow.address;
+  //     objectbylocation[uniq].spa = eachRow.spa;
+  //     objectbylocation[uniq].cd = eachRow.cd;
+  //     objectbylocation[uniq].bedsAvailable = eachRow.bedsAvailable;
+  //     objectbylocation[uniq].bedRestrictions = eachRow.bedRestrictions;
+  //     objectbylocation[uniq].housingType = eachRow.housingType;
+  //     objectbylocation[uniq].website = eachRow.website;
+  //     objectbylocation[uniq].contactInfo = eachRow.contactInfo;
+  //     objectbylocation[uniq].isnodata = String(eachRow.isnodata);
+  //     objectbylocation[uniq].iswaitlist = String(eachRow.iswaitlist);
+  //     objectbylocation[uniq].waitingList = eachRow.waitingList;
 
-      if (objectbylocation[uniq].shelterarray === undefined) {
-        objectbylocation[uniq].shelterarray = [];
-      }
-      objectbylocation[uniq].shelterarray.push(eachRow);
-    });
+  //     if (objectbylocation[uniq].shelterarray === undefined) {
+  //       objectbylocation[uniq].shelterarray = [];
+  //     }
+  //     objectbylocation[uniq].shelterarray.push(eachRow);
+  //   });
 
-    // console.log(objectbylocation);
-    // setObjectByLocation(objectbylocation)
+  //   // console.log(objectbylocation);
+  //   // setObjectByLocation(objectbylocation)
 
-    const featuresarray = Object.values(objectbylocation).map(
-      (eachLocation: any) => {
-        return {
-          type: "Feature",
-          properties: {
-            ...eachLocation,
-          },
-          geometry: {
-            coordinates: [eachLocation.lng, eachLocation.lat],
-            type: "Point",
-          },
-        };
-      }
-    );
+  //   const featuresarray = Object.values(objectbylocation).map(
+  //     (eachLocation: any) => {
+  //       return {
+  //         type: "Feature",
+  //         properties: {
+  //           ...eachLocation,
+  //         },
+  //         geometry: {
+  //           coordinates: [eachLocation.lng, eachLocation.lat],
+  //           type: "Point",
+  //         },
+  //       };
+  //     }
+  //   );
 
-    // console.log(featuresarray);
+  //   // console.log(featuresarray);
 
-    const geojsonsdflsf: any = {
-      type: "FeatureCollection",
-      features: featuresarray,
+  //   const geojsonsdflsf: any = {
+  //     type: "FeatureCollection",
+  //     features: featuresarray,
+  //   };
+
+  //   return geojsonsdflsf;
+  // }
+
+  // Function to add a small offset to coordinates
+function addOffsetToCoordinates(coordinates: number[]): number[] {
+  const offset = 0.00001; // You can adjust this value based on your needs
+  return [coordinates[0] + offset, coordinates[1] + offset];
+}
+
+function convertDataFromBackend(data: any) {
+  var objectbylocation: any = {};
+
+  data.master.forEach((eachRow: any) => {
+    const uniq = `${eachRow.lat}` + `${eachRow.lng}`;
+
+    if (objectbylocation[uniq] === undefined) {
+      objectbylocation[uniq] = {
+        totalBeds: 0,
+        bedsAvailable: 0,
+        occper: 0,
+        shelterarray: [],
+      };
+    }
+
+    // Increment the counts
+    objectbylocation[uniq].totalBeds += eachRow.totalBeds || 0;
+    objectbylocation[uniq].bedsAvailable += eachRow.bedsAvailable || 0;
+
+    // Calculate occper
+    objectbylocation[uniq].occper =
+      1 - objectbylocation[uniq].bedsAvailable / objectbylocation[uniq].totalBeds;
+
+    // Populate other properties
+    objectbylocation[uniq].organizationName = eachRow.organizationName;
+    objectbylocation[uniq].lat = eachRow.lat;
+    objectbylocation[uniq].lng = eachRow.lng;
+    objectbylocation[uniq].type = eachRow.type;
+    objectbylocation[uniq].address = eachRow.address;
+    objectbylocation[uniq].spa = eachRow.spa;
+    objectbylocation[uniq].cd = eachRow.cd;
+    objectbylocation[uniq].bedRestrictions = eachRow.bedRestrictions;
+    objectbylocation[uniq].housingType = eachRow.housingType;
+    objectbylocation[uniq].website = eachRow.website;
+    objectbylocation[uniq].contactInfo = eachRow.contactInfo;
+    objectbylocation[uniq].isnodata = String(eachRow.isnodata);
+    objectbylocation[uniq].iswaitlist = String(eachRow.iswaitlist);
+    objectbylocation[uniq].waitingList = eachRow.waitingList;
+
+    // Add eachRow to the shelterarray
+    objectbylocation[uniq].shelterarray.push(eachRow);
+  });
+
+  // Modify your feature data to include unique coordinates
+  const uniqueFeatures = Object.values(objectbylocation).map((eachLocation: any) => {
+    const coordinatesWithOffset = addOffsetToCoordinates([eachLocation.lng, eachLocation.lat]);
+
+    return {
+      type: "Feature",
+      properties: { ...eachLocation },
+      geometry: {
+        coordinates: coordinatesWithOffset,
+        type: "Point",
+      },
     };
+  });
 
-    return geojsonsdflsf;
-  }
+  // Create a GeoJSON FeatureCollection
+  const geojsonsdflsf: any = {
+    type: "FeatureCollection",
+    features: uniqueFeatures,
+  };
+
+  return geojsonsdflsf;
+}
+
   // const greenColor = objectByLocation.map((obj: any) => {
   //   var occper = obj.occper;
   // debugger
@@ -648,7 +726,6 @@ const Home: NextPage = () => {
           sheltersperdistcompute(data);
 
           const geojsonsdflsf = convertDataFromBackend(data);
-
           const counts = data.master.reduce(
             (acc: any, obj: any) => {
               const occper = obj.bedRestrictions;
@@ -656,7 +733,7 @@ const Home: NextPage = () => {
               if (occper === "Yes") {
                 acc.yellow += Number(totalbeds);
               } else if (occper === "No") {
-                debugger;
+                // debugger;
                 acc.green += Number(totalbeds);
               } else {
                 acc.red++;
@@ -832,8 +909,9 @@ const Home: NextPage = () => {
             // console.log("properties", e.features[0].properties);
 
             // console.log(JSON.parse(e.features[0].properties.shelterarray));
-
+            console.log(e.features[0].properties.shelterarray)
             JSON.parse(e.features[0].properties.shelterarray).forEach(
+              
               (eachShelter: any) => {
                 arrayOfSheltersText.push(`
           <div class="rounded-sm bg-slate-700 bg-opacity-70 px-1 py-1 leading-tight">
@@ -859,10 +937,10 @@ const Home: NextPage = () => {
             eachShelter.criteria ? `Criteria: ${eachShelter.criteria}<br/>` : ""
           }
           ${
-            eachShelter.lastUpdated &&
+            eachShelter.dateLastUpdated &&
             `
             <span class='italic font-semibold'>Last Updated ${new Date(
-              eachShelter.lastUpdated
+              eachShelter.dateLastUpdated
             ).toLocaleDateString("default", {
               weekday: "short",
               year: "numeric",
