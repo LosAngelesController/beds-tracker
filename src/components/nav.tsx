@@ -4,18 +4,17 @@ const navigationPayroll = [
     name: "Map",
     url: "/",
   },
- 
+
   {
     name: "Table",
     url: "https://docs.google.com/spreadsheets/d/15o9Ko4LN169lXEISrTr9eIvD6KYOmllL44tkQCA4ZQs/edit?usp=sharing",
     newtab: true,
-  }, 
+  },
   {
     name: "Analysis",
     url: "https://controller.lacity.gov/landings/interim-housing-audit",
     newtab: true,
-  }, 
-
+  },
 
   {
     name: "Los Angeles Controller",

@@ -186,7 +186,7 @@ const Home: NextPage = () => {
     useState<string[]>(populType);
   const housingType = [
     "Interim Housing",
-   "A Bridge Home (ABH)",
+    "A Bridge Home (ABH)",
     "Roadmap",
     "Crisis Housing",
     "Transitional Housing",
@@ -203,8 +203,6 @@ const Home: NextPage = () => {
     "Recuperative Care",
     "Safe Haven",
     "Winter Shelter ",
-
-
   ];
   const [filteredHousing, setfilteredHousing] = useState<string[]>(housingType);
   const shouldfilteropeninit =
@@ -517,76 +515,82 @@ const Home: NextPage = () => {
   // }
 
   // Function to add a small offset to coordinates
-function addOffsetToCoordinates(coordinates: number[]): number[] {
-  const offset = 0.00001; // You can adjust this value based on your needs
-  return [coordinates[0] + offset, coordinates[1] + offset];
-}
+  function addOffsetToCoordinates(coordinates: number[]): number[] {
+    const offset = 0.00001; // You can adjust this value based on your needs
+    return [coordinates[0] + offset, coordinates[1] + offset];
+  }
 
-function convertDataFromBackend(data: any) {
-  var objectbylocation: any = {};
+  function convertDataFromBackend(data: any) {
+    var objectbylocation: any = {};
 
-  data.master.forEach((eachRow: any) => {
-    const uniq = `${eachRow.lat}` + `${eachRow.lng}`;
+    data.master.forEach((eachRow: any) => {
+      const uniq = `${eachRow.lat}` + `${eachRow.lng}`;
 
-    if (objectbylocation[uniq] === undefined) {
-      objectbylocation[uniq] = {
-        totalBeds: 0,
-        bedsAvailable: 0,
-        occper: 0,
-        shelterarray: [],
-      };
-    }
+      if (objectbylocation[uniq] === undefined) {
+        objectbylocation[uniq] = {
+          totalBeds: 0,
+          bedsAvailable: 0,
+          occper: 0,
+          shelterarray: [],
+        };
+      }
 
-    // Increment the counts
-    objectbylocation[uniq].totalBeds += eachRow.totalBeds || 0;
-    objectbylocation[uniq].bedsAvailable += eachRow.bedsAvailable || 0;
+      // Increment the counts
+      objectbylocation[uniq].totalBeds += eachRow.totalBeds || 0;
+      objectbylocation[uniq].bedsAvailable += eachRow.bedsAvailable || 0;
 
-    // Calculate occper
-    objectbylocation[uniq].occper =
-      1 - objectbylocation[uniq].bedsAvailable / objectbylocation[uniq].totalBeds;
+      // Calculate occper
+      objectbylocation[uniq].occper =
+        1 -
+        objectbylocation[uniq].bedsAvailable / objectbylocation[uniq].totalBeds;
 
-    // Populate other properties
-    objectbylocation[uniq].organizationName = eachRow.organizationName;
-    objectbylocation[uniq].lat = eachRow.lat;
-    objectbylocation[uniq].lng = eachRow.lng;
-    objectbylocation[uniq].type = eachRow.type;
-    objectbylocation[uniq].address = eachRow.address;
-    objectbylocation[uniq].spa = eachRow.spa;
-    objectbylocation[uniq].cd = eachRow.cd;
-    objectbylocation[uniq].bedRestrictions = eachRow.bedRestrictions;
-    objectbylocation[uniq].housingType = eachRow.housingType;
-    objectbylocation[uniq].website = eachRow.website;
-    objectbylocation[uniq].contactInfo = eachRow.contactInfo;
-    objectbylocation[uniq].isnodata = String(eachRow.isnodata);
-    objectbylocation[uniq].iswaitlist = String(eachRow.iswaitlist);
-    objectbylocation[uniq].waitingList = eachRow.waitingList;
+      // Populate other properties
+      objectbylocation[uniq].organizationName = eachRow.organizationName;
+      objectbylocation[uniq].lat = eachRow.lat;
+      objectbylocation[uniq].lng = eachRow.lng;
+      objectbylocation[uniq].type = eachRow.type;
+      objectbylocation[uniq].address = eachRow.address;
+      objectbylocation[uniq].spa = eachRow.spa;
+      objectbylocation[uniq].cd = eachRow.cd;
+      objectbylocation[uniq].bedRestrictions = eachRow.bedRestrictions;
+      objectbylocation[uniq].housingType = eachRow.housingType;
+      objectbylocation[uniq].website = eachRow.website;
+      objectbylocation[uniq].contactInfo = eachRow.contactInfo;
+      objectbylocation[uniq].isnodata = String(eachRow.isnodata);
+      objectbylocation[uniq].iswaitlist = String(eachRow.iswaitlist);
+      objectbylocation[uniq].waitingList = eachRow.waitingList;
 
-    // Add eachRow to the shelterarray
-    objectbylocation[uniq].shelterarray.push(eachRow);
-  });
+      // Add eachRow to the shelterarray
+      objectbylocation[uniq].shelterarray.push(eachRow);
+    });
 
-  // Modify your feature data to include unique coordinates
-  const uniqueFeatures = Object.values(objectbylocation).map((eachLocation: any) => {
-    const coordinatesWithOffset = addOffsetToCoordinates([eachLocation.lng, eachLocation.lat]);
+    // Modify your feature data to include unique coordinates
+    const uniqueFeatures = Object.values(objectbylocation).map(
+      (eachLocation: any) => {
+        const coordinatesWithOffset = addOffsetToCoordinates([
+          eachLocation.lng,
+          eachLocation.lat,
+        ]);
 
-    return {
-      type: "Feature",
-      properties: { ...eachLocation },
-      geometry: {
-        coordinates: coordinatesWithOffset,
-        type: "Point",
-      },
+        return {
+          type: "Feature",
+          properties: { ...eachLocation },
+          geometry: {
+            coordinates: coordinatesWithOffset,
+            type: "Point",
+          },
+        };
+      }
+    );
+
+    // Create a GeoJSON FeatureCollection
+    const geojsonsdflsf: any = {
+      type: "FeatureCollection",
+      features: uniqueFeatures,
     };
-  });
 
-  // Create a GeoJSON FeatureCollection
-  const geojsonsdflsf: any = {
-    type: "FeatureCollection",
-    features: uniqueFeatures,
-  };
-
-  return geojsonsdflsf;
-}
+    return geojsonsdflsf;
+  }
 
   // const greenColor = objectByLocation.map((obj: any) => {
   //   var occper = obj.occper;
@@ -909,9 +913,8 @@ function convertDataFromBackend(data: any) {
             // console.log("properties", e.features[0].properties);
 
             // console.log(JSON.parse(e.features[0].properties.shelterarray));
-            console.log(e.features[0].properties.shelterarray)
+            console.log(e.features[0].properties.shelterarray);
             JSON.parse(e.features[0].properties.shelterarray).forEach(
-              
               (eachShelter: any) => {
                 arrayOfSheltersText.push(`
           <div class="rounded-sm bg-slate-700 bg-opacity-70 px-1 py-1 leading-tight">
