@@ -203,6 +203,7 @@ const Home: NextPage = () => {
     "Recuperative Care",
     "Safe Haven",
     "Winter Shelter ",
+    
   ];
   const [filteredHousing, setfilteredHousing] = useState<string[]>(housingType);
   const shouldfilteropeninit =
@@ -835,7 +836,7 @@ const Home: NextPage = () => {
                   ["get", "bedRestrictions"],
                   "Yes",
                   "#FF0000", // Red if bedsAvailable is 0 and bedRestrictions is "Yes"
-                  "#41FFCA", // Green if bedsAvailable is 0 and bedRestrictions is "No"
+                  "#FF0000", // red if bedsAvailable is 0 and bedRestrictions is "No"
                 ],
                 [
                   "match",
