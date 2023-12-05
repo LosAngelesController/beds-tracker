@@ -12,7 +12,7 @@ const navigationPayroll = [
   },
   {
     name: "Analysis",
-    url: "https://controller.lacity.gov/landings/interim-housing-audit",
+    url: " bit.ly/interim-housing-audit",
     newtab: true,
   },
 
