@@ -1472,7 +1472,7 @@ const Home: NextPage = () => {
                 color: "#ffffff",
               }}
             >
-              <strong className="">Shelter Bed Availability Map</strong>
+              <strong className="">Shelter Bed Availability Map DEMO</strong>
             </div>
 
             <div
