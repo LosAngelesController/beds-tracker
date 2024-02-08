@@ -202,7 +202,7 @@ const Home: NextPage = () => {
     "Independent Living Program",
     "Recuperative Care",
     "Safe Haven",
-    "Winter Shelter ",
+    "Winter Shelter",
   ];
   const [filteredHousing, setfilteredHousing] = useState<string[]>(housingType);
   const shouldfilteropeninit =
