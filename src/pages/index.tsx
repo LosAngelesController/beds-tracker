@@ -1,26 +1,12 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import Image from "next/image";
-import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, createRef } from "react";
-import Slider from "rc-slider";
-
 import { CloseButton } from "../components/CloseButton";
 import { signintrack, uploadMapboxTrack } from "../components/mapboxtrack";
-import TooltipSlider, { handleRender } from "../components/TooltipSlider";
-import { getAuth, signInWithCustomToken } from "firebase/auth";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import MapboxLanguage from "@mapbox/mapbox-gl-language";
 import Nav from "../components/nav";
-
 import { MantineProvider, Checkbox } from "@mantine/core";
 import React, { useEffect, useState, useRef } from "react";
-import { initializeApp } from "firebase/app";
-
-import Icon from "@mdi/react";
-import { mdiPlay } from "@mdi/js";
-import { mdiPause, mdiSkipNext, mdiSkipPrevious } from "@mdi/js";
-
 import CouncilDist from "./CouncilDistricts.json";
 import { auth, signInWithGoogle, signOutOfApp } from "./../components/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -29,33 +15,17 @@ const councildistricts = require("./CouncilDistricts.json");
 const citybounds = require("./citybounds.json");
 // @ts-ignore: Unreachable code error
 import * as turf from "@turf/turf";
-import { datadogRum } from "@datadog/browser-rum";
 
 // added the following 6 lines.
 import mapboxgl from "mapbox-gl";
 
-import { assertDeclareExportAllDeclaration } from "@babel/types";
-
-import { GeoJsonProperties, MultiPolygon, Polygon } from "geojson";
-import { Set } from "typescript";
-
-function isTouchScreen() {
-  return window.matchMedia("(hover: none)").matches;
-}
 
 var cacheofcdsfromnames: any = {};
 
-function getLang() {
-  if (navigator.languages != undefined) return navigator.languages[0];
-  return navigator.language;
-}
-//https://backend-beds-tracker-t4gf5mnipq-uw.a.run.app/shelters"
-//https://api.sheety.co/aacf3e0f7311db48c4e758ecf773731f/cityOfLaShelters/master
 
-//https://api.sheety.co/aacf3e0f7311db48c4e758ecf773731f/cityOfLaShelters/master
 const apiofshelters =
   "https://api.sheety.co/aacf3e0f7311db48c4e758ecf773731f/cityOfLaShelters/master";
-//s
+
 var councilareasdistrict: any = {
   "1": 39172374.513557486,
   "2": 56028687.75752604,
@@ -236,6 +206,24 @@ const Home: NextPage = () => {
   });
   // console.log(colors)
   const [mapboxloaded, setmapboxloaded] = useState(false);
+  const [mapboxConfig, setMapboxConfig] = useState<{
+    mapboxToken: string;
+    mapboxStyle: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const fetchMapboxConfig = async () => {
+      try {
+        const response = await fetch("/api/mapboxConfig");
+        const data = await response.json();
+        setMapboxConfig(data);
+      } catch (error) {
+        console.error("Error fetching Mapbox config:", error);
+      }
+    };
+
+    fetchMapboxConfig();
+  }, []);
 
   const setfilteredcouncildistrictspre = (input: string[]) => {
     // console.log("inputvalidator", input);
@@ -605,15 +593,12 @@ const Home: NextPage = () => {
   useEffect(() => {
     // console.log("map div", divRef);
 
-    if (divRef.current) {
-      // console.log("app render");
-    }
+    if (mapboxConfig && divRef.current) {
+      mapboxgl.accessToken = mapboxConfig.mapboxToken;
 
     // mapboxgl.workerClass = require('worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker').default;
     //import locations from './features.geojson'
 
-    mapboxgl.accessToken =
-      "pk.eyJ1Ijoia2VubmV0aG1lamlhIiwiYSI6ImNsZG1oYnpxNDA2aTQzb2tkYXU2ZWc1b3UifQ.PxO_XgMo13klJ3mQw1QxlQ";
 
     const formulaForZoom = () => {
       if (typeof window != "undefined") {
@@ -635,7 +620,7 @@ const Home: NextPage = () => {
 
     var mapparams: any = {
       container: divRef.current,
-      style: "mapbox://styles/mapbox/dark-v10",
+        style: mapboxConfig.mapboxStyle,
       center: [-118.41, 34],
       zoom: formulaForZoom(),
     };
@@ -1355,7 +1340,7 @@ const Home: NextPage = () => {
     if (getmapboxlogo) {
       getmapboxlogo.remove();
     }
-  }, []);
+  }}, [mapboxConfig]);
 
   useEffect(() => {
     let arrayoffilterables: any = [];
@@ -1395,21 +1380,21 @@ const Home: NextPage = () => {
         <Head>
           <link
             rel="icon"
-            href="https://mejiaforcontroller.com/wp-content/uploads/2020/12/cropped-favicon-1-32x32.png"
+            // href="https://mejiaforcontroller.com/wp-content/uploads/2020/12/cropped-favicon-1-32x32.png"
             sizes="32x32"
           />
           <link
             rel="icon"
-            href="https://mejiaforcontroller.com/wp-content/uploads/2020/12/cropped-favicon-1-192x192.png"
+            // href="https://mejiaforcontroller.com/wp-content/uploads/2020/12/cropped-favicon-1-192x192.png"
             sizes="192x192"
           />
           <link
             rel="apple-touch-icon"
-            href="https://mejiaforcontroller.com/wp-content/uploads/2020/12/cropped-favicon-1-180x180.png"
+            // href="https://mejiaforcontroller.com/wp-content/uploads/2020/12/cropped-favicon-1-180x180.png"
           />
           <meta
             name="msapplication-TileImage"
-            content="https://mejiaforcontroller.com/wp-content/uploads/2020/12/cropped-favicon-1-270x270.png"
+            // content="https://mejiaforcontroller.com/wp-content/uploads/2020/12/cropped-favicon-1-270x270.png"
           />
 
           <meta charSet="utf-8" />
@@ -1435,7 +1420,7 @@ const Home: NextPage = () => {
           <meta
             name="twitter:image"
             key="twitterimg"
-            content="https://shelterbeds.lacontroller.io/shelter-thumbnail-min.png"
+            content="https://shelterbeds.lacontroller.app/shelter-thumbnail-min.png"
           ></meta>
           <meta
             name="description"
@@ -1444,7 +1429,7 @@ const Home: NextPage = () => {
 
           <meta
             property="og:url"
-            content="https://shelterbeds.lacontroller.io/"
+            content="https://shelterbeds.lacontroller.app/"
           />
           <meta property="og:type" content="website" />
           <meta property="og:title" content="Shelter Beds Occupancy | Map" />
@@ -1454,7 +1439,7 @@ const Home: NextPage = () => {
           />
           <meta
             property="og:image"
-            content="https://shelterbeds.lacontroller.io/shelter-thumbnail-min.png"
+            content="https://shelterbeds.lacontroller.app/shelter-thumbnail-min.png"
           />
         </Head>
 
