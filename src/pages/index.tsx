@@ -16,12 +16,9 @@ const citybounds = require("./citybounds.json");
 // @ts-ignore: Unreachable code error
 import * as turf from "@turf/turf";
 
-// added the following 6 lines.
 import mapboxgl from "mapbox-gl";
 
-
 var cacheofcdsfromnames: any = {};
-
 
 const apiofshelters =
   "https://api.sheety.co/aacf3e0f7311db48c4e758ecf773731f/cityOfLaShelters/master";
@@ -596,319 +593,320 @@ const Home: NextPage = () => {
     if (mapboxConfig && divRef.current) {
       mapboxgl.accessToken = mapboxConfig.mapboxToken;
 
-    // mapboxgl.workerClass = require('worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker').default;
-    //import locations from './features.geojson'
+      // mapboxgl.workerClass = require('worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker').default;
+      //import locations from './features.geojson'
 
-
-    const formulaForZoom = () => {
-      if (typeof window != "undefined") {
-        if (window.innerWidth > 700) {
-          return 10;
-        } else {
-          return 9.1;
-        }
-      }
-    };
-
-    const urlParams = new URLSearchParams(
-      typeof window != "undefined" ? window.location.search : ""
-    );
-    const latParam = urlParams.get("lat");
-    const lngParam = urlParams.get("lng");
-    const zoomParam = urlParams.get("zoom");
-    const debugParam = urlParams.get("debug");
-
-    var mapparams: any = {
-      container: divRef.current,
-        style: mapboxConfig.mapboxStyle,
-      center: [-118.41, 34],
-      zoom: formulaForZoom(),
-    };
-
-    const map = new mapboxgl.Map(mapparams);
-    mapref.current = map;
-
-    var rtldone = false;
-
-    try {
-      if (rtldone === false && hasStartedControls === false) {
-        setHasStartedControls(true);
-        //multilingual support
-        //right to left allows arabic rendering
-        mapboxgl.setRTLTextPlugin(
-          "https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.10.1/mapbox-gl-rtl-text.js",
-          (callbackinfo: any) => {
-            // console.log(callbackinfo);
-            rtldone = true;
+      const formulaForZoom = () => {
+        if (typeof window != "undefined") {
+          if (window.innerWidth > 700) {
+            return 10;
+          } else {
+            return 9.1;
           }
-        );
-      }
-
-      const language = new MapboxLanguage();
-      map.addControl(language);
-    } catch (error) {
-      console.error(error);
-    }
-
-    window.addEventListener("resize", handleResize);
-
-    map.on("load", () => {
-      setdoneloadingmap(true);
-      setshowtotalarea(window.innerWidth > 640 ? true : false);
-
-      okaydeletepoints.current = () => {
-        try {
-          var affordablepoint: any = map.getSource("selected-home-point");
-          affordablepoint.setData(null);
-        } catch (err) {
-          console.error(err);
         }
       };
 
-      const processgeocodereventresult = (eventmapbox: any) => {
-        var singlePointSet: any = map.getSource("single-point");
+      const urlParams = new URLSearchParams(
+        typeof window != "undefined" ? window.location.search : ""
+      );
+      const latParam = urlParams.get("lat");
+      const lngParam = urlParams.get("lng");
+      const zoomParam = urlParams.get("zoom");
+      const debugParam = urlParams.get("debug");
 
-        singlePointSet.setData({
-          type: "FeatureCollection",
-          features: [
-            {
-              type: "Feature",
-              geometry: eventmapbox.result.geometry,
-            },
-          ],
-        });
-
-        // console.log("event.result.geometry", eventmapbox.result.geometry);
-        // console.log("geocoderesult", eventmapbox);
+      var mapparams: any = {
+        container: divRef.current,
+        style: mapboxConfig.mapboxStyle,
+        center: [-118.41, 34],
+        zoom: formulaForZoom(),
       };
 
-      const processgeocodereventselect = (object: any) => {
-        var coord = object.feature.geometry.coordinates;
-        var singlePointSet: any = map.getSource("single-point");
+      const map = new mapboxgl.Map(mapparams);
+      mapref.current = map;
 
-        singlePointSet.setData({
-          type: "FeatureCollection",
-          features: [
-            {
-              type: "Feature",
-              geometry: object.feature.geometry,
-            },
-          ],
-        });
-      };
+      var rtldone = false;
 
-      const geocoder: any = new MapboxGeocoder({
-        accessToken: mapboxgl.accessToken,
-        mapboxgl: map,
-        proximity: {
-          longitude: -118.41,
-          latitude: 34,
-        },
-        marker: true,
-      });
-
-      fetch(apiofshelters)
-        .then((response) => response.json())
-        .then((data) => {
-          // console.log(data);
-
-          sheltersperdistcompute(data);
-
-          const geojsonsdflsf = convertDataFromBackend(data);
-          const counts = data.master.reduce(
-            (acc: any, obj: any) => {
-              const occper = obj.bedRestrictions;
-              const totalbeds = obj.bedsAvailable;
-              if (occper === "Yes") {
-                acc.yellow += Number(totalbeds);
-              } else if (occper === "No") {
-                // debugger;
-                acc.green += Number(totalbeds);
-              } else {
-                acc.red++;
-              }
-              return acc;
-            },
-            { yellow: 0, green: 0, red: 0 }
+      try {
+        if (rtldone === false && hasStartedControls === false) {
+          setHasStartedControls(true);
+          //multilingual support
+          //right to left allows arabic rendering
+          mapboxgl.setRTLTextPlugin(
+            "https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.10.1/mapbox-gl-rtl-text.js",
+            (callbackinfo: any) => {
+              // console.log(callbackinfo);
+              rtldone = true;
+            }
           );
+        }
 
-          setColors((prevColors) => ({
-            ...prevColors,
-            green: prevColors.green + counts.green,
-            yellow: prevColors.yellow + counts.yellow,
-            red: prevColors.red + counts.red,
-          }));
+        const language = new MapboxLanguage();
+        map.addControl(language);
+      } catch (error) {
+        console.error(error);
+      }
 
-          map.addSource("sheltersv2", {
-            type: "geojson",
-            data: geojsonsdflsf,
+      window.addEventListener("resize", handleResize);
+
+      map.on("load", () => {
+        setdoneloadingmap(true);
+        setshowtotalarea(window.innerWidth > 640 ? true : false);
+
+        okaydeletepoints.current = () => {
+          try {
+            var affordablepoint: any = map.getSource("selected-home-point");
+            affordablepoint.setData(null);
+          } catch (err) {
+            console.error(err);
+          }
+        };
+
+        const processgeocodereventresult = (eventmapbox: any) => {
+          var singlePointSet: any = map.getSource("single-point");
+
+          singlePointSet.setData({
+            type: "FeatureCollection",
+            features: [
+              {
+                type: "Feature",
+                geometry: eventmapbox.result.geometry,
+              },
+            ],
           });
 
-          // setInterval(() => {
-          //   fetch(apiofshelters)
-          //     .then((response) => response.json())
-          //     .then((data) => {
-          //       console.log(data);
+          // console.log("event.result.geometry", eventmapbox.result.geometry);
+          // console.log("geocoderesult", eventmapbox);
+        };
 
-          //       sheltersperdistcompute(data);
+        const processgeocodereventselect = (object: any) => {
+          var coord = object.feature.geometry.coordinates;
+          var singlePointSet: any = map.getSource("single-point");
 
-          //       const geojsonrefresh = convertDataFromBackend(data);
-
-          //       const sheltersource: any = map.getSource("sheltersv2");
-
-          //       if (sheltersource) {
-          //         sheltersource.setData(geojsonrefresh);
-          //       }
-          //     });
-          // }, 2000);
-
-          // map.addLayer({
-          //   id: "shelterslayer",
-          //   type: "circle",
-          //   source: "sheltersv2",
-          //   paint: {
-          //     "circle-radius": [
-          //       "interpolate",
-          //       ["linear"],
-          //       ["zoom"],
-          //       10,
-          //       ["*", 1.2, ["ln", ["get", "totalBeds"]]],
-          //       22,
-          //       ["*", 5, ["ln", ["get", "totalBeds"]]],
-          //     ],
-          //     "circle-color": [
-          //       "match",
-          //       ["get", "bedsAvailable"],
-          //       0,
-          //       "#FF0000", // Red if bedsAvailable is 0
-          //       [
-          //         "match",
-          //         ["get", "bedRestrictions"],
-          //         "Yes",
-          //         "#FFA500", // Orange if bedRestriction is "Yes"
-          //         "No",
-          //         "#00FF00", // Green if bedRestriction is "No"
-          //         "#00FF00", // Red for other cases (if bedRestriction has other values or is not available)
-          //       ],
-          //     ],
-          //     "circle-stroke-opacity": 0.9,
-          //     "circle-opacity": 0.9,
-          //     "circle-stroke-width": 2,
-          //     "circle-stroke-color": "hsl(0, 12%, 13%)",
-          //   },
-          // });
-          map.addLayer({
-            id: "shelterslayer",
-            type: "circle",
-            source: "sheltersv2",
-            paint: {
-              "circle-radius": [
-                "interpolate",
-                ["linear"],
-                ["zoom"],
-                10,
-                ["*", 1.2, ["ln", ["get", "totalBeds"]]],
-                22,
-                ["*", 5, ["ln", ["get", "totalBeds"]]],
-              ],
-              "circle-color": [
-                "match",
-                ["get", "bedsAvailable"],
-                0,
-                [
-                  "match",
-                  ["get", "bedRestrictions"],
-                  "Yes",
-                  "#FF0000", // Red if bedsAvailable is 0 and bedRestrictions is "Yes"
-                  "#FF0000", // red if bedsAvailable is 0 and bedRestrictions is "No"
-                ],
-                [
-                  "match",
-                  ["get", "bedRestrictions"],
-                  "Yes",
-                  "#ffca41", // Orange if bedsAvailable has a value other than 0 and bedRestrictions is "Yes"
-                  "#41FFCA", // Green if bedsAvailable has a value other than 0 and bedRestrictions is "No"
-                ],
-              ],
-              "circle-stroke-opacity": 0.9,
-              "circle-opacity": 0.9,
-              "circle-stroke-width": 2,
-              "circle-stroke-color": "hsl(0, 12%, 13%)",
-            },
+          singlePointSet.setData({
+            type: "FeatureCollection",
+            features: [
+              {
+                type: "Feature",
+                geometry: object.feature.geometry,
+              },
+            ],
           });
+        };
 
-          setdatasetloaded(true);
+        const geocoder: any = new MapboxGeocoder({
+          accessToken: mapboxgl.accessToken,
+          mapboxgl: map,
+          proximity: {
+            longitude: -118.41,
+            latitude: 34,
+          },
+          marker: true,
+        });
 
-          map.on("mousedown", "shelterslayer", (e: any) => {
-            setshelterselected(e.features[0]);
+        fetch(apiofshelters)
+          .then((response) => response.json())
+          .then((data) => {
+            // console.log(data);
 
-            var affordablepoint: any = map.getSource("selected-shelter-point");
+            sheltersperdistcompute(data);
 
-            var councildistpolygonfound = null;
-
-            affordablepoint.setData(councildistpolygonfound);
-
-            mapref.current.setLayoutProperty(
-              "points-selected-shelter-layer",
-              "visibility",
-              "visible"
+            const geojsonsdflsf = convertDataFromBackend(data);
+            const counts = data.master.reduce(
+              (acc: any, obj: any) => {
+                const occper = obj.bedRestrictions;
+                const totalbeds = obj.bedsAvailable;
+                if (occper === "Yes") {
+                  acc.yellow += Number(totalbeds);
+                } else if (occper === "No") {
+                  // debugger;
+                  acc.green += Number(totalbeds);
+                } else {
+                  acc.red++;
+                }
+                return acc;
+              },
+              { yellow: 0, green: 0, red: 0 }
             );
 
-            map.moveLayer("points-selected-shelter-layer");
-          });
+            setColors((prevColors) => ({
+              ...prevColors,
+              green: prevColors.green + counts.green,
+              yellow: prevColors.yellow + counts.yellow,
+              red: prevColors.red + counts.red,
+            }));
 
-          map.on("mouseleave", "shelterslayer", () => {
-            //check if the url query string "stopmouseleave" is true
-            //if it is, then don't do anything
-            //if it is not, then do the following
-            /*
+            map.addSource("sheltersv2", {
+              type: "geojson",
+              data: geojsonsdflsf,
+            });
+
+            // setInterval(() => {
+            //   fetch(apiofshelters)
+            //     .then((response) => response.json())
+            //     .then((data) => {
+            //       console.log(data);
+
+            //       sheltersperdistcompute(data);
+
+            //       const geojsonrefresh = convertDataFromBackend(data);
+
+            //       const sheltersource: any = map.getSource("sheltersv2");
+
+            //       if (sheltersource) {
+            //         sheltersource.setData(geojsonrefresh);
+            //       }
+            //     });
+            // }, 2000);
+
+            // map.addLayer({
+            //   id: "shelterslayer",
+            //   type: "circle",
+            //   source: "sheltersv2",
+            //   paint: {
+            //     "circle-radius": [
+            //       "interpolate",
+            //       ["linear"],
+            //       ["zoom"],
+            //       10,
+            //       ["*", 1.2, ["ln", ["get", "totalBeds"]]],
+            //       22,
+            //       ["*", 5, ["ln", ["get", "totalBeds"]]],
+            //     ],
+            //     "circle-color": [
+            //       "match",
+            //       ["get", "bedsAvailable"],
+            //       0,
+            //       "#FF0000", // Red if bedsAvailable is 0
+            //       [
+            //         "match",
+            //         ["get", "bedRestrictions"],
+            //         "Yes",
+            //         "#FFA500", // Orange if bedRestriction is "Yes"
+            //         "No",
+            //         "#00FF00", // Green if bedRestriction is "No"
+            //         "#00FF00", // Red for other cases (if bedRestriction has other values or is not available)
+            //       ],
+            //     ],
+            //     "circle-stroke-opacity": 0.9,
+            //     "circle-opacity": 0.9,
+            //     "circle-stroke-width": 2,
+            //     "circle-stroke-color": "hsl(0, 12%, 13%)",
+            //   },
+            // });
+            map.addLayer({
+              id: "shelterslayer",
+              type: "circle",
+              source: "sheltersv2",
+              paint: {
+                "circle-radius": [
+                  "interpolate",
+                  ["linear"],
+                  ["zoom"],
+                  10,
+                  ["*", 1.2, ["ln", ["get", "totalBeds"]]],
+                  22,
+                  ["*", 5, ["ln", ["get", "totalBeds"]]],
+                ],
+                "circle-color": [
+                  "match",
+                  ["get", "bedsAvailable"],
+                  0,
+                  [
+                    "match",
+                    ["get", "bedRestrictions"],
+                    "Yes",
+                    "#FF0000", // Red if bedsAvailable is 0 and bedRestrictions is "Yes"
+                    "#FF0000", // red if bedsAvailable is 0 and bedRestrictions is "No"
+                  ],
+                  [
+                    "match",
+                    ["get", "bedRestrictions"],
+                    "Yes",
+                    "#ffca41", // Orange if bedsAvailable has a value other than 0 and bedRestrictions is "Yes"
+                    "#41FFCA", // Green if bedsAvailable has a value other than 0 and bedRestrictions is "No"
+                  ],
+                ],
+                "circle-stroke-opacity": 0.9,
+                "circle-opacity": 0.9,
+                "circle-stroke-width": 2,
+                "circle-stroke-color": "hsl(0, 12%, 13%)",
+              },
+            });
+
+            setdatasetloaded(true);
+
+            map.on("mousedown", "shelterslayer", (e: any) => {
+              setshelterselected(e.features[0]);
+
+              var affordablepoint: any = map.getSource(
+                "selected-shelter-point"
+              );
+
+              var councildistpolygonfound = null;
+
+              affordablepoint.setData(councildistpolygonfound);
+
+              mapref.current.setLayoutProperty(
+                "points-selected-shelter-layer",
+                "visibility",
+                "visible"
+              );
+
+              map.moveLayer("points-selected-shelter-layer");
+            });
+
+            map.on("mouseleave", "shelterslayer", () => {
+              //check if the url query string "stopmouseleave" is true
+              //if it is, then don't do anything
+              //if it is not, then do the following
+              /*
         map.getCanvas().style.cursor = '';
         popup.remove();*/
 
-            if (urlParams.get("stopmouseleave") === null) {
-              map.getCanvas().style.cursor = "";
-              popup.remove();
-            }
-          });
-
-          map.on("mousedown", "councildistrictsselectlayer", (e: any) => {
-            var sourceofcouncildistselect: any = map.getSource(
-              "selected-council-dist"
-            );
-
-            var clickeddata = e.features[0].properties.district;
-
-            var councildistpolygonfound = councildistricts.features.find(
-              (eachDist: any) => eachDist.properties.district === clickeddata
-            );
-
-            if (sourceofcouncildistselect) {
-              if (councildistpolygonfound) {
-                sourceofcouncildistselect.setData(councildistpolygonfound);
+              if (urlParams.get("stopmouseleave") === null) {
+                map.getCanvas().style.cursor = "";
+                popup.remove();
               }
-            }
-          });
+            });
 
-          map.on("mouseenter", "shelterslayer", (e: any) => {
-            // Change the cursor style as a UI indicator.
-            map.getCanvas().style.cursor = "pointer";
+            map.on("mousedown", "councildistrictsselectlayer", (e: any) => {
+              var sourceofcouncildistselect: any = map.getSource(
+                "selected-council-dist"
+              );
 
-            var arrayOfSheltersText: any = [];
+              var clickeddata = e.features[0].properties.district;
 
-            // console.log("properties", e.features[0].properties);
+              var councildistpolygonfound = councildistricts.features.find(
+                (eachDist: any) => eachDist.properties.district === clickeddata
+              );
 
-            // console.log(JSON.parse(e.features[0].properties.shelterarray));
-            console.log(e.features[0].properties.shelterarray);
-            JSON.parse(e.features[0].properties.shelterarray).forEach(
-              (eachShelter: any) => {
-                arrayOfSheltersText.push(`
+              if (sourceofcouncildistselect) {
+                if (councildistpolygonfound) {
+                  sourceofcouncildistselect.setData(councildistpolygonfound);
+                }
+              }
+            });
+
+            map.on("mouseenter", "shelterslayer", (e: any) => {
+              // Change the cursor style as a UI indicator.
+              map.getCanvas().style.cursor = "pointer";
+
+              var arrayOfSheltersText: any = [];
+
+              // console.log("properties", e.features[0].properties);
+
+              // console.log(JSON.parse(e.features[0].properties.shelterarray));
+              console.log(e.features[0].properties.shelterarray);
+              JSON.parse(e.features[0].properties.shelterarray).forEach(
+                (eachShelter: any) => {
+                  arrayOfSheltersText.push(`
           <div class="rounded-sm bg-slate-700 bg-opacity-70 px-1 py-1 leading-tight">
           <strong>${eachShelter.projectname}</strong><br/>
           ${eachShelter.type ? `Type: ${eachShelter.type}<br/>` : ""}
          
           ${eachShelter.totalBeds} beds | ${
-                  eachShelter.bedsAvailable
-                } beds available<br/>
+                    eachShelter.bedsAvailable
+                  } beds available<br/>
           ${
             eachShelter.maleAvailable
               ? `  ${eachShelter.maleAvailable} male beds available<br/>`
@@ -942,14 +940,14 @@ const Home: NextPage = () => {
         
           </div>
             `);
-              }
-            );
+                }
+              );
 
-            var collateshelters = arrayOfSheltersText.join("");
+              var collateshelters = arrayOfSheltersText.join("");
 
-            // Copy coordinates array.
-            const coordinates = e.features[0].geometry.coordinates.slice();
-            const description = `
+              // Copy coordinates array.
+              const coordinates = e.features[0].geometry.coordinates.slice();
+              const description = `
           ${e.features[0].properties.organizationName}<br/>
           ${e.features[0].properties.address}<br/>
           <div className='flexcollate'
@@ -974,268 +972,103 @@ const Home: NextPage = () => {
           </style>
           `;
 
-            // Ensure that if the map is zoomed out such that multiple
-            // copies of the feature are visible, the popup appears
-            // over the copy being pointed to.
-            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-              coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-            }
-
-            // Populate the popup and set its coordinates
-            // based on the feature found.
-            popup.setLngLat(coordinates).setHTML(description).addTo(map);
-          });
-
-          map.on("touchstart", "shelterslayer", (e: any) => {
-            popup.remove();
-            touchref.current = {
-              lngLat: e.lngLat,
-              time: Date.now(),
-            };
-          });
-        });
-
-      var colormarker = new mapboxgl.Marker({
-        color: "#41ffca",
-      });
-
-      const geocoderopt: any = {
-        accessToken: mapboxgl.accessToken,
-        mapboxgl: mapboxgl,
-        marker: {
-          color: "#41ffca",
-        },
-      };
-
-      const geocoder2 = new MapboxGeocoder(geocoderopt);
-      const geocoder3 = new MapboxGeocoder(geocoderopt);
-
-      geocoder.on("result", (event: any) => {
-        processgeocodereventresult(event);
-      });
-
-      geocoder.on("select", function (object: any) {
-        processgeocodereventselect(object);
-      });
-
-      var geocoderId = document.getElementById("geocoder");
-
-      if (geocoderId) {
-        // console.log("geocoder div found");
-
-        if (!document.querySelector(".geocoder input")) {
-          geocoderId.appendChild(geocoder3.onAdd(map));
-
-          var inputMobile = document.querySelector(".geocoder input");
-
-          try {
-            var loadboi = document.querySelector(
-              ".mapboxgl-ctrl-geocoder--icon-loading"
-            );
-            if (loadboi) {
-              var brightspin: any = loadboi.firstChild;
-              if (brightspin) {
-                brightspin.setAttribute("style", "fill: #e2e8f0");
+              // Ensure that if the map is zoomed out such that multiple
+              // copies of the feature are visible, the popup appears
+              // over the copy being pointed to.
+              while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
               }
-              var darkspin: any = loadboi.lastChild;
-              if (darkspin) {
-                darkspin.setAttribute("style", "fill: #94a3b8");
-              }
-            }
-          } catch (err) {
-            console.error(err);
-          }
 
-          if (inputMobile) {
-            inputMobile.addEventListener("focus", () => {
-              //make the box below go away
+              // Populate the popup and set its coordinates
+              // based on the feature found.
+              popup.setLngLat(coordinates).setHTML(description).addTo(map);
             });
+
+            map.on("touchstart", "shelterslayer", (e: any) => {
+              popup.remove();
+              touchref.current = {
+                lngLat: e.lngLat,
+                time: Date.now(),
+              };
+            });
+          });
+
+        var colormarker = new mapboxgl.Marker({
+          color: "#41ffca",
+        });
+
+        const geocoderopt: any = {
+          accessToken: mapboxgl.accessToken,
+          mapboxgl: mapboxgl,
+          marker: {
+            color: "#41ffca",
+          },
+        };
+
+        const geocoder2 = new MapboxGeocoder(geocoderopt);
+        const geocoder3 = new MapboxGeocoder(geocoderopt);
+
+        geocoder.on("result", (event: any) => {
+          processgeocodereventresult(event);
+        });
+
+        geocoder.on("select", function (object: any) {
+          processgeocodereventselect(object);
+        });
+
+        var geocoderId = document.getElementById("geocoder");
+
+        if (geocoderId) {
+          // console.log("geocoder div found");
+
+          if (!document.querySelector(".geocoder input")) {
+            geocoderId.appendChild(geocoder3.onAdd(map));
+
+            var inputMobile = document.querySelector(".geocoder input");
+
+            try {
+              var loadboi = document.querySelector(
+                ".mapboxgl-ctrl-geocoder--icon-loading"
+              );
+              if (loadboi) {
+                var brightspin: any = loadboi.firstChild;
+                if (brightspin) {
+                  brightspin.setAttribute("style", "fill: #e2e8f0");
+                }
+                var darkspin: any = loadboi.lastChild;
+                if (darkspin) {
+                  darkspin.setAttribute("style", "fill: #94a3b8");
+                }
+              }
+            } catch (err) {
+              console.error(err);
+            }
+
+            if (inputMobile) {
+              inputMobile.addEventListener("focus", () => {
+                //make the box below go away
+              });
+            }
           }
-        }
 
-        geocoder2.on("result", (event: any) => {
-          processgeocodereventresult(event);
-        });
+          geocoder2.on("result", (event: any) => {
+            processgeocodereventresult(event);
+          });
 
-        geocoder2.on("select", function (object: any) {
-          processgeocodereventselect(object);
-        });
+          geocoder2.on("select", function (object: any) {
+            processgeocodereventselect(object);
+          });
 
-        geocoder3.on("result", (event: any) => {
-          processgeocodereventresult(event);
-        });
+          geocoder3.on("result", (event: any) => {
+            processgeocodereventresult(event);
+          });
 
-        geocoder3.on("select", function (object: any) {
-          processgeocodereventselect(object);
-        });
-      }
-
-      map.addSource("single-point", {
-        type: "geojson",
-        data: {
-          type: "FeatureCollection",
-          features: [],
-        },
-      });
-
-      if (true) {
-        map.addLayer({
-          id: "point",
-          source: "single-point",
-          type: "circle",
-          paint: {
-            "circle-radius": 10,
-            "circle-color": "#41ffca",
-          },
-        });
-      }
-
-      if (debugParam) {
-        map.showTileBoundaries = true;
-        map.showCollisionBoxes = true;
-        map.showPadding = true;
-      }
-
-      if (urlParams.get("terraindebug")) {
-        map.showTerrainWireframe = true;
-      }
-
-      // Create a popup, but don't add it to the map yet.
-      const popup = new mapboxgl.Popup({
-        closeButton: false,
-        closeOnClick: false,
-      });
-
-      map.addSource("selected-shelter-point", {
-        type: "geojson",
-        data: {
-          type: "FeatureCollection",
-          features: [],
-        },
-      });
-
-      map.addSource("selected-park-area", {
-        type: "geojson",
-        data: {
-          type: "FeatureCollection",
-          features: [],
-        },
-      });
-
-      if (false) {
-        map.addLayer({
-          id: "selected-park-areas",
-          source: "selected-park-area",
-          type: "line",
-          paint: {
-            "line-color": "#7dd3fc",
-            "line-width": 5,
-            "line-blur": 0,
-          },
-        });
-
-        map.addLayer({
-          id: "selected-park-areasfill",
-          source: "selected-park-area",
-          type: "fill",
-          paint: {
-            "fill-color": "#7dd3fc",
-            "fill-opacity": 0.2,
-          },
-        });
-      }
-
-      map.loadImage("/map-marker.png", (error, image: any) => {
-        if (error) throw error;
-
-        // Add the image to the map style.
-        map.addImage("map-marker", image);
-
-        if (true) {
-          map.addLayer({
-            id: "points-selected-shelter-layer",
-            type: "symbol",
-            source: "selected-shelter-point",
-            paint: {
-              "icon-color": "#41ffca",
-              "icon-translate": [0, -13],
-            },
-            layout: {
-              "icon-image": "map-marker",
-              // get the title name from the source's "title" property
-              "text-allow-overlap": true,
-              "icon-allow-overlap": true,
-              "icon-ignore-placement": true,
-              "text-ignore-placement": true,
-
-              "icon-size": 0.4,
-              "icon-text-fit": "both",
-            },
+          geocoder3.on("select", function (object: any) {
+            processgeocodereventselect(object);
           });
         }
-      });
 
-      if (
-        !document.querySelector(
-          ".mapboxgl-ctrl-top-right > .mapboxgl-ctrl-geocoder"
-        )
-      ) {
-        map.addControl(geocoder2);
-      }
-
-      checkHideOrShowTopRightGeocoder();
-
-      if (true) {
-        map.addLayer(
-          {
-            id: "citybound",
-            type: "line",
-            source: {
-              type: "geojson",
-              data: citybounds,
-            },
-            paint: {
-              "line-color": "#dddddd",
-              "line-opacity": 1,
-              "line-width": 3,
-            },
-          },
-          "road-label"
-        );
-
-        map.addSource("citycouncildist", {
-          type: "geojson",
-          data: councildistricts,
-        });
-
-        map.addLayer(
-          {
-            id: "councildistrictslayer",
-            type: "line",
-            source: "citycouncildist",
-            paint: {
-              "line-color": "#bbbbbb",
-              "line-opacity": 1,
-              "line-width": 2,
-            },
-          },
-          "road-label"
-        );
-
-        map.addLayer(
-          {
-            id: "councildistrictsselectlayer",
-            type: "fill",
-            source: "citycouncildist",
-            paint: {
-              "fill-color": "#000000",
-              "fill-opacity": 0,
-            },
-          },
-          "road-label"
-        );
-
-        map.addSource("selected-council-dist", {
+        map.addSource("single-point", {
           type: "geojson",
           data: {
             type: "FeatureCollection",
@@ -1243,104 +1076,270 @@ const Home: NextPage = () => {
           },
         });
 
-        map.addLayer(
-          {
-            id: "selected-council-dist-layer",
-            type: "fill",
-            source: "selected-council-dist",
+        if (true) {
+          map.addLayer({
+            id: "point",
+            source: "single-point",
+            type: "circle",
             paint: {
-              "fill-color": "#bdbdeb",
-              "fill-opacity": 0.1,
+              "circle-radius": 10,
+              "circle-color": "#41ffca",
             },
-          },
-          "road-label"
-        );
+          });
+        }
 
-        map.addLayer(
-          {
-            id: "selected-council-dist-layer",
-            type: "fill",
-            source: "selected-council-dist",
+        if (debugParam) {
+          map.showTileBoundaries = true;
+          map.showCollisionBoxes = true;
+          map.showPadding = true;
+        }
+
+        if (urlParams.get("terraindebug")) {
+          map.showTerrainWireframe = true;
+        }
+
+        // Create a popup, but don't add it to the map yet.
+        const popup = new mapboxgl.Popup({
+          closeButton: false,
+          closeOnClick: false,
+        });
+
+        map.addSource("selected-shelter-point", {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: [],
+          },
+        });
+
+        map.addSource("selected-park-area", {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: [],
+          },
+        });
+
+        if (false) {
+          map.addLayer({
+            id: "selected-park-areas",
+            source: "selected-park-area",
+            type: "line",
             paint: {
-              "fill-color": "#bdbdeb",
-              "fill-opacity": 0.09,
+              "line-color": "#7dd3fc",
+              "line-width": 5,
+              "line-blur": 0,
             },
-          },
-          "aeroway-polygon"
-        );
-      }
+          });
 
-      if (hasStartedControls === false) {
-        // Add zoom and rotation controls to the map.
-        map.addControl(new mapboxgl.NavigationControl());
-
-        // Add geolocate control to the map.
-        map.addControl(
-          new mapboxgl.GeolocateControl({
-            positionOptions: {
-              enableHighAccuracy: true,
+          map.addLayer({
+            id: "selected-park-areasfill",
+            source: "selected-park-area",
+            type: "fill",
+            paint: {
+              "fill-color": "#7dd3fc",
+              "fill-opacity": 0.2,
             },
-            // When active the map will receive updates to the device's location as it changes.
-            trackUserLocation: true,
-            // Draw an arrow next to the location dot to indicate which direction the device is heading.
-            showUserHeading: true,
-          })
-        );
+          });
+        }
+
+        map.loadImage("/map-marker.png", (error, image: any) => {
+          if (error) throw error;
+
+          // Add the image to the map style.
+          map.addImage("map-marker", image);
+
+          if (true) {
+            map.addLayer({
+              id: "points-selected-shelter-layer",
+              type: "symbol",
+              source: "selected-shelter-point",
+              paint: {
+                "icon-color": "#41ffca",
+                "icon-translate": [0, -13],
+              },
+              layout: {
+                "icon-image": "map-marker",
+                // get the title name from the source's "title" property
+                "text-allow-overlap": true,
+                "icon-allow-overlap": true,
+                "icon-ignore-placement": true,
+                "text-ignore-placement": true,
+
+                "icon-size": 0.4,
+                "icon-text-fit": "both",
+              },
+            });
+          }
+        });
+
+        if (
+          !document.querySelector(
+            ".mapboxgl-ctrl-top-right > .mapboxgl-ctrl-geocoder"
+          )
+        ) {
+          map.addControl(geocoder2);
+        }
+
+        checkHideOrShowTopRightGeocoder();
+
+        if (true) {
+          map.addLayer(
+            {
+              id: "citybound",
+              type: "line",
+              source: {
+                type: "geojson",
+                data: citybounds,
+              },
+              paint: {
+                "line-color": "#dddddd",
+                "line-opacity": 1,
+                "line-width": 3,
+              },
+            },
+            "road-label"
+          );
+
+          map.addSource("citycouncildist", {
+            type: "geojson",
+            data: councildistricts,
+          });
+
+          map.addLayer(
+            {
+              id: "councildistrictslayer",
+              type: "line",
+              source: "citycouncildist",
+              paint: {
+                "line-color": "#bbbbbb",
+                "line-opacity": 1,
+                "line-width": 2,
+              },
+            },
+            "road-label"
+          );
+
+          map.addLayer(
+            {
+              id: "councildistrictsselectlayer",
+              type: "fill",
+              source: "citycouncildist",
+              paint: {
+                "fill-color": "#000000",
+                "fill-opacity": 0,
+              },
+            },
+            "road-label"
+          );
+
+          map.addSource("selected-council-dist", {
+            type: "geojson",
+            data: {
+              type: "FeatureCollection",
+              features: [],
+            },
+          });
+
+          map.addLayer(
+            {
+              id: "selected-council-dist-layer",
+              type: "fill",
+              source: "selected-council-dist",
+              paint: {
+                "fill-color": "#bdbdeb",
+                "fill-opacity": 0.1,
+              },
+            },
+            "road-label"
+          );
+
+          map.addLayer(
+            {
+              id: "selected-council-dist-layer",
+              type: "fill",
+              source: "selected-council-dist",
+              paint: {
+                "fill-color": "#bdbdeb",
+                "fill-opacity": 0.09,
+              },
+            },
+            "aeroway-polygon"
+          );
+        }
+
+        if (hasStartedControls === false) {
+          // Add zoom and rotation controls to the map.
+          map.addControl(new mapboxgl.NavigationControl());
+
+          // Add geolocate control to the map.
+          map.addControl(
+            new mapboxgl.GeolocateControl({
+              positionOptions: {
+                enableHighAccuracy: true,
+              },
+              // When active the map will receive updates to the device's location as it changes.
+              trackUserLocation: true,
+              // Draw an arrow next to the location dot to indicate which direction the device is heading.
+              showUserHeading: true,
+            })
+          );
+        }
+
+        checkHideOrShowTopRightGeocoder();
+
+        var mapname = "beds";
+
+        map.on("dragstart", (e) => {
+          uploadMapboxTrack({
+            mapname,
+            eventtype: "dragstart",
+            globallng: map.getCenter().lng,
+            globallat: map.getCenter().lat,
+            globalzoom: map.getZoom(),
+          });
+        });
+
+        map.on("dragend", (e) => {
+          uploadMapboxTrack({
+            mapname,
+            eventtype: "dragend",
+            globallng: map.getCenter().lng,
+            globallat: map.getCenter().lat,
+            globalzoom: map.getZoom(),
+          });
+        });
+
+        map.on("zoomstart", (e) => {
+          uploadMapboxTrack({
+            mapname,
+            eventtype: "dragstart",
+            globallng: map.getCenter().lng,
+            globallat: map.getCenter().lat,
+            globalzoom: map.getZoom(),
+          });
+        });
+
+        map.on("zoomend", (e) => {
+          uploadMapboxTrack({
+            mapname,
+            eventtype: "zoomend",
+            globallng: map.getCenter().lng,
+            globallat: map.getCenter().lat,
+            globalzoom: map.getZoom(),
+          });
+        });
+
+        //end of load
+      });
+
+      var getmapboxlogo: any = document.querySelector(".mapboxgl-ctrl-logo");
+
+      if (getmapboxlogo) {
+        getmapboxlogo.remove();
       }
-
-      checkHideOrShowTopRightGeocoder();
-
-      var mapname = "beds";
-
-      map.on("dragstart", (e) => {
-        uploadMapboxTrack({
-          mapname,
-          eventtype: "dragstart",
-          globallng: map.getCenter().lng,
-          globallat: map.getCenter().lat,
-          globalzoom: map.getZoom(),
-        });
-      });
-
-      map.on("dragend", (e) => {
-        uploadMapboxTrack({
-          mapname,
-          eventtype: "dragend",
-          globallng: map.getCenter().lng,
-          globallat: map.getCenter().lat,
-          globalzoom: map.getZoom(),
-        });
-      });
-
-      map.on("zoomstart", (e) => {
-        uploadMapboxTrack({
-          mapname,
-          eventtype: "dragstart",
-          globallng: map.getCenter().lng,
-          globallat: map.getCenter().lat,
-          globalzoom: map.getZoom(),
-        });
-      });
-
-      map.on("zoomend", (e) => {
-        uploadMapboxTrack({
-          mapname,
-          eventtype: "zoomend",
-          globallng: map.getCenter().lng,
-          globallat: map.getCenter().lat,
-          globalzoom: map.getZoom(),
-        });
-      });
-
-      //end of load
-    });
-
-    var getmapboxlogo: any = document.querySelector(".mapboxgl-ctrl-logo");
-
-    if (getmapboxlogo) {
-      getmapboxlogo.remove();
     }
-  }}, [mapboxConfig]);
+  }, [mapboxConfig]);
 
   useEffect(() => {
     let arrayoffilterables: any = [];
